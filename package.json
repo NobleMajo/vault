@@ -1,0 +1,22 @@
+{
+  "name": "vault",
+  "version": "0.0.1",
+  "description": "crasy secret file en/decoder",
+  "scripts": {
+    "build": "go build -o vault cmd/main.go",
+    "dev": "nodemon -w ./cmd --ext *.go -x \"npm run build\""
+  },
+  "keywords": [
+    "go",
+    "golang",
+    "vault"
+  ],
+  "author": "NobleMajo",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "bin": {
+    "vault": "./vault"
+  }
+}

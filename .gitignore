@@ -20,3 +20,12 @@
 # Go workspace file
 go.work
 go.work.sum
+
+# Vault 
+vault
+vault.*
+*.vt
+*.bak
+
+# node
+node_modules
