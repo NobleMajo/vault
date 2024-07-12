@@ -34,8 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: ["linux", "windows", "darwin"]
-        goarch: ["386", "amd64", "arm64"]
+        goos: ["linux", "darwin"] #"windows"
+        goarch: ["amd64"] #"386", "arm64"
         exclude:
           - goarch: "386"
             goos: "darwin"
@@ -50,5 +50,5 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "1.22"
         binary_name: "vault"
-        build_flags: "cmd/main.go"
+        project_path: "./cmd"
         extra_files: LICENSE README.md
