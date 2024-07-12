@@ -1,7 +1,4 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Go build and test
 
 on:
   push:
@@ -28,27 +25,3 @@ jobs:
 
     - name: Build
       run: go build -o vault cmd/main.go
-      
-  releases-matrix:
-    name: Release Go Binary
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: ["linux", "darwin"] #"windows"
-        goarch: ["amd64"] #"386", "arm64"
-        exclude:
-          - goarch: "386"
-            goos: "darwin"
-          - goarch: "arm64"
-            goos: "windows"
-    steps:
-    - uses: actions/checkout@v4
-    - uses: wangyoucao577/go-release-action@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        goversion: "1.22"
-        binary_name: "vault"
-        project_path: "./cmd"
-        extra_files: LICENSE README.md
