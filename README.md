@@ -2,7 +2,6 @@
 - [Table of Contents](#table-of-contents)
 - [About](#about)
 - [Advertising](#advertising)
-- [Future](#future)
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
   - [Build](#build)
@@ -29,10 +28,6 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
 **Then I have exactly what you are looking for today!**
 
 *Hold on tight and take a closer look at this command line interface tool because it might meet your exact needs.*
-
-# Future
-Currently, the Vault file is encrypted using AES-256, but in the future it will also use the private and public keys from the .ssh directory to add a addiitonal asymetic encryption by default.
-This can be turned off via a flag.
 
 # Getting Started
 ## Requirements
