@@ -1,6 +1,7 @@
 # Table of Contents
 - [Table of Contents](#table-of-contents)
 - [About](#about)
+- [Advertising](#advertising)
 - [Future](#future)
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
@@ -20,6 +21,14 @@ Vault is a small and simple CLI tool that encodes plain `.txt` files into encryp
 `.vt` is a custom file format for vault.
 
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
+
+# Advertising
+
+*Are you also a small software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
+*Or do you simply have logs or plain text files that you want to send to someone securely?*
+**Then I have exactly what you are looking for today!**
+
+*Hold on tight and take a closer look at this command line interface tool because it might meet your exact needs.*
 
 # Future
 Currently, the Vault file is encrypted using AES-256, but in the future it will also use the private and public keys from the .ssh directory to add a addiitonal asymetic encryption by default.
