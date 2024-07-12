@@ -5,7 +5,12 @@
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
   - [Build](#build)
-  - [Run](#run)
+  - [Help](#help)
+- [Development](#development)
+  - [Automatic building](#automatic-building)
+  - [Global binary linkin](#global-binary-linkin)
+- [Operations](#operations)
+  - [Other filename](#other-filename)
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
@@ -31,33 +36,82 @@ sudo ./update-golang.sh
 ```
 
 ## Build
+Build the vault binary from source code:
 ```sh
 go build -o bin/vault cmd/main.go
 # or npm run build
 ```
 
-## Run
+## Help
+Run the help command on the binary
+```sh
+./vault -h
+```
+
+# Development
+You can use node.js to easily install and run nodemon or link the binary:
+
+## Automatic building
+```sh
+npm i
+npm run dev
+```
+
+## Global binary linkin
+```sh
+npm i -g .
+```
+Then use can use 'vault' everywhere:
+```sh
+cd ..
+vault -h
+```
+
+# Operations
+
+### lock
 Add some content to your `vault.txt` and lock it:
 ```sh
 vim vault.txt
-./vault lock
+vault lock
 ```
 
-Unlock the file for 30 seconds, changes get saved:
+**OR**
+
+### init
+Create a new locked vault file:
 ```sh
-./vault temp
+vault init
 ```
 
-Unlock forever:
+### unlock
+Unlock the vault as plain `.txt` file:
 ```sh
-./vault unlock
+vault unlock
 ```
 
-To choose a other file then the `vault.txt` use the second argument without extentions:
+### temp
+Unlock the file for 5 seconds as `.txt`.
+In this time you can open it with an editor.
+```sh
+vault temp
+```
+
+### print
+Print the locked content in console:
+```sh
+vault print
+```
+
+## Other filename
+To choose a other file then the `vault.txt` use the second argument without extensions:
+(`test` for `test.txt` and `test.vt`)
  ```sh
-./vault lock <filename>
-./vault temp <filename>
-./vault unlock <filename>
+vault lock <filename>
+vault temp <filename>
+vault unlock <filename>
+vault init <filename>
+vault print <filename>
 ```
 
 # Contributing
