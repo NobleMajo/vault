@@ -3,6 +3,8 @@ name: Go build and test
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "**.go"
 
 permissions:
     contents: write
