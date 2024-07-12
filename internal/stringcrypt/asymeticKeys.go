@@ -2,6 +2,7 @@ package stringcrypt
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -108,6 +109,87 @@ func ConvertOpensshPublicKeyToPemRsaPublicKey(publicKey string) (string, error) 
 	return string(pemKey), nil
 }
 
+func ParseAnyToPemPublicKey(anyPublicKey string) (string, error) {
+	anyPublicKey = strings.TrimSpace(anyPublicKey)
+
+	if strings.HasPrefix(anyPublicKey, "-----BEGIN PUBLIC KEY-----") {
+		decodedPublicKeyBlock, _ := pem.Decode([]byte(anyPublicKey))
+		parsedPubKey, err := x509.ParsePKCS1PublicKey(decodedPublicKeyBlock.Bytes)
+		if err != nil {
+			return "", errors.New("invalid public key format:\n> " + err.Error())
+		}
+
+		pemBlock := pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(parsedPubKey),
+		}
+
+		pemKey := pem.EncodeToMemory(&pemBlock)
+		return string(pemKey), nil
+	} else if strings.HasPrefix(anyPublicKey, "-----BEGIN RSA PUBLIC KEY-----") {
+		decodedPublicKeyBlock, _ := pem.Decode([]byte(anyPublicKey))
+		parsedPubKey, err := x509.ParsePKCS1PublicKey(decodedPublicKeyBlock.Bytes)
+		if err != nil {
+			return "", errors.New("invalid public key format:\n> " + err.Error())
+		}
+
+		pemBlock := pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(parsedPubKey),
+		}
+
+		pemKey := pem.EncodeToMemory(&pemBlock)
+		return string(pemKey), nil
+	} else if strings.HasPrefix(anyPublicKey, "-----BEGIN EC PUBLIC KEY-----") {
+		blockPub, _ := pem.Decode([]byte(anyPublicKey))
+
+		genericPublicKey, err := x509.ParsePKIXPublicKey(blockPub.Bytes)
+		if err != nil {
+			return "", errors.New("invalid public key format:\n> " + err.Error())
+		}
+
+		parsedPubKey, ok := genericPublicKey.(*ecdsa.PublicKey)
+		if !ok {
+			return "", errors.New("invalid public key format")
+		}
+
+		encoded, err := x509.MarshalPKIXPublicKey(parsedPubKey)
+		if err != nil {
+			return "", errors.New("invalid public key format:\n> " + err.Error())
+		}
+
+		pemBlock := pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: encoded,
+		}
+
+		pemKey := pem.EncodeToMemory(&pemBlock)
+		return string(pemKey), nil
+	} else if strings.HasPrefix(anyPublicKey, "ssh-rsa ") {
+		parsedPubKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(anyPublicKey))
+		if err != nil {
+			return "", errors.New("invalid public key format:\n> " + err.Error())
+		}
+
+		cryptoKey, ok := parsedPubKey.(ssh.CryptoPublicKey)
+		if !ok {
+			return "", errors.New("invalid public key format")
+		}
+
+		parsedPubKey2 := cryptoKey.CryptoPublicKey().(*rsa.PublicKey)
+
+		pemBlock := pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(parsedPubKey2),
+		}
+
+		pemKey := pem.EncodeToMemory(&pemBlock)
+		return string(pemKey), nil
+	} else {
+		return "", errors.New("invalid public key format")
+	}
+}
+
 func LoadPublicKey(keyDir string, publicKeyNames []string) (string, error) {
 	var err2 error = errors.New("no public key found in " + keyDir)
 
@@ -123,26 +205,13 @@ func LoadPublicKey(keyDir string, publicKeyNames []string) (string, error) {
 			}
 
 			content = strings.TrimSpace(content)
+			content, err = ParseAnyToPemPublicKey(content)
 
-			if !strings.HasPrefix(content, "-----BEGIN") {
-				content, err = ConvertOpensshPublicKeyToPemRsaPublicKey(content)
-
-				if err != nil {
-					return "", errors.New("failed to convert OpenSSH public key to PEM format:\n> " + err.Error())
-				}
+			if err == nil {
+				return content, nil
 			}
 
-			publicKeyBlock, _ := pem.Decode([]byte(content))
-
-			if publicKeyBlock == nil {
-				return "", errors.New("failed to parse PEM block containing the public key:\n'" + content + "'")
-			}
-
-			if publicKeyBlock.Type != "RSA PUBLIC KEY" {
-				return "", errors.New("wrong X509 public key type: " + publicKeyBlock.Type)
-			}
-
-			return content, nil
+			err2 = fmt.Errorf("failed to parse public key:\n> %v", err)
 		}
 	}
 
