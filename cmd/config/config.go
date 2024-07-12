@@ -7,10 +7,13 @@ import (
 )
 
 type AppConfig struct {
-	KeyDir          string
-	PrivateKeyNames []string
-	PublicKeyNames  []string
-	Args            []string
+	KeyDir              string
+	PrivateKeyNames     []string
+	PublicKeyNames      []string
+	Args                []string
+	VaultFileExtension  string
+	PlainFileExtension  string
+	BackupFileExtension string
 }
 
 func defineStringVar(
@@ -33,8 +36,7 @@ func defineStringVar(
 		)
 	}
 
-	resultValue := flag.String(flagName, defaultValue, description)
-	return *resultValue
+	return *flag.String(flagName, defaultValue, description)
 }
 
 func defineStringArrayVar(
@@ -63,20 +65,21 @@ func defineStringArrayVar(
 		defaultValue,
 		description+"('"+seperator+"'-seperated)",
 	)
+
 	return strings.Split(*resultValue, seperator)
 }
 
 func LoadConfig() AppConfig {
 	appConfig := AppConfig{
 		KeyDir: defineStringVar(
-			"",
+			"k",
 			"key-dir",
 			"VAULT_KEY_DIR",
 			"~/.ssh",
 			"Path to the key directory to search for asymetric keys",
 		),
 		PrivateKeyNames: defineStringArrayVar(
-			"",
+			"r",
 			"private-key-names",
 			"VAULT_PRIVATE_KEY_NAMES",
 			"id_rsa",
@@ -84,12 +87,33 @@ func LoadConfig() AppConfig {
 			"List of private keys names",
 		),
 		PublicKeyNames: defineStringArrayVar(
-			"",
+			"u",
 			"public-key-names",
 			"VAULT_PUBLIC_KEY_NAMES",
 			"id_rsa.pub",
 			",",
 			"List of public keys names",
+		),
+		VaultFileExtension: defineStringVar(
+			"v",
+			"vault-ext",
+			"VAULT_EXT",
+			"vt",
+			"File extension for encrypted vault files",
+		),
+		PlainFileExtension: defineStringVar(
+			"p",
+			"plain-ext",
+			"VAULT_PLAIN_EXT",
+			"txt",
+			"File extension for unencrypted plain files",
+		),
+		BackupFileExtension: defineStringVar(
+			"b",
+			"backup-ext",
+			"VAULT_BACKUP_EXT",
+			"bak",
+			"File extension for encrypted and unencrypted backup files",
 		),
 		Args: []string{},
 	}

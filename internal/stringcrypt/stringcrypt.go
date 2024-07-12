@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"io"
+	"strings"
 )
 
 func AesEncrypt(key string, sourceString string) (string, error) {
@@ -71,32 +72,44 @@ func IncreaseAesKeyLength(key []byte, keySize int) []byte {
 
 func X509Encrypt(publicKeyPem string, sourceString string) (string, error) {
 	publicKeyBlock, _ := pem.Decode([]byte(publicKeyPem))
-	publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
+
+	if publicKeyBlock == nil {
+		return "", errors.New("failed to parse PEM block containing the public key:\n'" + publicKeyPem + "'")
+	}
+
+	if publicKeyBlock.Type != "RSA PUBLIC KEY" {
+		return "", errors.New("wrong public key type")
+	}
+
+	publicKey, err := x509.ParsePKCS1PublicKey(publicKeyBlock.Bytes)
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to parse encoded public key:\n> " + err.Error())
 	}
 
 	encodedString, err := rsa.EncryptPKCS1v15(
 		rand.Reader,
-		publicKey.(*rsa.PublicKey),
+		publicKey,
 		[]byte(sourceString),
 	)
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to encrypt string:\n> " + err.Error())
 	}
 
 	return string(encodedString), nil
 }
 
 func X509Decrypt(privateKeyPem string, encodedString string) (string, error) {
+	privateKeyPem = strings.TrimSpace(privateKeyPem)
+
 	privateKeyBlock, _ := pem.Decode([]byte(privateKeyPem))
+
 	privateKey, err := x509.ParsePKCS1PrivateKey(privateKeyBlock.Bytes)
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to parse encoded private key:\n> " + err.Error())
 	}
 	decodedString, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, []byte(encodedString))
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to decrypt string:\n> " + err.Error())
 	}
 
 	return string(decodedString), nil

@@ -1,10 +1,40 @@
 package stringfs
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
+	"strings"
 )
+
+func ParsePath(path *string) error {
+	if path == nil {
+		return errors.New("path is nil")
+	}
+
+	*path = strings.TrimSpace(*path)
+
+	if strings.HasPrefix(*path, "~") {
+		userHome, err := os.UserHomeDir()
+		if err != nil {
+			return errors.New("cant get users home dir:\n> " + err.Error())
+		}
+
+		*path = strings.Replace(*path, "~", userHome, 1)
+	}
+
+	if !strings.HasPrefix(*path, "/") {
+		wd, err := os.Getwd()
+		if err != nil {
+			return errors.New("cant get current working dir:\n> " + err.Error())
+		}
+
+		*path = wd + "/" + *path
+	}
+
+	return nil
+}
 
 func SafeRemoveFile(path string, backupSuffix string) error {
 	RemoveFile(path + backupSuffix)
@@ -55,6 +85,13 @@ func SafeReadFile(path string, backupSuffix string) (string, error) {
 	return string(rawData), nil
 }
 
+func SafeReadBothFiles(path string, backupSuffix string) (string, error, string, error) {
+	rawData1, err1 := os.ReadFile(path)
+	rawData2, err2 := os.ReadFile(path + backupSuffix)
+
+	return string(rawData1), err1, string(rawData2), err2
+}
+
 func IsSafeFile(path string, backupSuffix string) (bool, bool) {
 	exists, isDir := IsDir(path)
 	existsBackup, isDirBackup := IsDir(path + backupSuffix)
@@ -102,6 +139,16 @@ func ReadFile(path string) (string, error) {
 	}
 
 	return string(rawData), nil
+}
+
+func Exists(path string) bool {
+	stat, err := os.Stat(path)
+
+	if err != nil || stat == nil {
+		return false
+	}
+
+	return true
 }
 
 func IsFile(path string) (bool, bool) {
