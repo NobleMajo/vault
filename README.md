@@ -8,7 +8,7 @@
   - [Help](#help)
 - [Development](#development)
   - [Automatic building](#automatic-building)
-  - [Global binary linkin](#global-binary-linkin)
+  - [Global binary linking](#global-binary-linking)
 - [Operations](#operations)
   - [Other filename](#other-filename)
 - [Contributing](#contributing)
@@ -52,12 +52,14 @@ Run the help command on the binary
 You can use node.js to easily install and run nodemon or link the binary:
 
 ## Automatic building
+This installs and starts a nodemon file watcher that rebuilds the binary if the sources get changed:
 ```sh
 npm i
 npm run dev
 ```
 
-## Global binary linkin
+## Global binary linking
+With global linking you can access your binary in every directory by using `vault`:
 ```sh
 npm i -g .
 ```
@@ -68,6 +70,7 @@ vault -h
 ```
 
 # Operations
+Vault operations are sub commands defined via the first command line argument.
 
 ### lock
 Add some content to your `vault.txt` and lock it:
