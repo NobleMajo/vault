@@ -16,8 +16,7 @@
 - [Disclaimer](#disclaimer)
 
 # About
-Vault is a small and simple CLI tool that encodes plain `.txt` files into encrypted `.vt` files.
-`.vt` is a custom file format for vault.
+Vault is a small and simple CLI tool that encrypt and decrypt plain `.txt` files into vault-files (`.vt`, a custom file format).
 
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
