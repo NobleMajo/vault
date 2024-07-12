@@ -50,5 +50,5 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "1.22"
         binary_name: "vault"
-        project_path: "./cmd/main"
+        build_flags: "cmd/main.go"
         extra_files: LICENSE README.md
