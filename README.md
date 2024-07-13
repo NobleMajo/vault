@@ -1,7 +1,8 @@
 # Table of Contents
 - [Table of Contents](#table-of-contents)
 - [About](#about)
-- [Advertising](#advertising)
+  - [Advertising](#advertising)
+  - [Encryption](#encryption)
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
   - [Build](#build)
@@ -20,13 +21,16 @@ Vault is a small and simple CLI tool that encrypt and decrypt plain `.txt` files
 
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
-# Advertising
-
+## Advertising
 *Are you also a small software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
 *Or do you simply have logs or plain text files that you want to send to someone securely?*
 **Then I have exactly what you are looking for today!**
 
 *Hold on tight and take a closer look at this command line interface tool because it might meet your exact needs.*
+
+## Encryption
+Vault uses asymmetric RSA encryption and symmetric AES-256 encryption to keep your data as secure as possible.
+To do this, vault uses private and public key on disk (default: `~/.ssh/id_rsa.pub`) and also asks you for a password.
 
 # Getting Started
 ## Requirements
@@ -49,6 +53,36 @@ go build -o bin/vault cmd/main.go
 Run the help command on the binary
 ```sh
 ./vault -h
+```
+
+Note: Almost everything in vault can be set using a flag and the corresponding environment variable.
+Check out the help page:
+```rust
+Usage of vault:
+  -b string
+        File extension for encrypted and unencrypted backup files (default "bak")
+  -backup-ext string
+        File extension for encrypted and unencrypted backup files (default "bak")
+  -k string
+        Path to the key directory to search for asymetric keys (default "~/.ssh")
+  -key-dir string
+        Path to the key directory to search for asymetric keys (default "~/.ssh")
+  -p string
+        File extension for unencrypted plain files (default "txt")
+  -plain-ext string
+        File extension for unencrypted plain files (default "txt")
+  -private-key-names string
+        List of private keys names(','-seperated) (default "id_rsa")
+  -public-key-names string
+        List of public keys names(','-seperated) (default "id_rsa.pub")
+  -r string
+        List of private keys names (default "id_rsa")
+  -u string
+        List of public keys names (default "id_rsa.pub")
+  -v string
+        File extension for encrypted vault files (default "vt")
+  -vault-ext string
+        File extension for encrypted vault files (default "vt")
 ```
 
 # Development
