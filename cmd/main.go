@@ -11,15 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"coreunit.net/vault/cmd/config"
 	"coreunit.net/vault/internal/stringcrypt"
 	"coreunit.net/vault/internal/stringfs"
-	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/term"
 )
 
 func main() {
-	appConfig := config.LoadConfig()
+	appConfig := LoadConfig()
 
 	err := stringfs.ParsePath(&appConfig.KeyDir)
 	if err != nil {
@@ -67,7 +65,6 @@ func main() {
 	if rawOperation == "lock" {
 		lockOperation(
 			targetFile,
-			rawOperation,
 			appConfig,
 		)
 		return
@@ -86,7 +83,7 @@ func main() {
 	} else if rawOperation == "unlock" || rawOperation == "temp" {
 		unlockOperation(
 			targetFile,
-			rawOperation,
+			rawOperation == "temp",
 			appConfig,
 		)
 		return
@@ -105,7 +102,7 @@ func exitError(message string) {
 
 func initOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig AppConfig,
 ) {
 	targetVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -161,8 +158,7 @@ func initOperation(
 
 func lockOperation(
 	targetFile string,
-	rawOperation string,
-	appConfig config.AppConfig,
+	appConfig AppConfig,
 ) {
 	// ENCODING
 	sourcePlainFile := targetFile + "." + appConfig.PlainFileExtension
@@ -227,8 +223,8 @@ func lockOperation(
 
 func unlockOperation(
 	targetFile string,
-	rawOperation string,
-	appConfig config.AppConfig,
+	isTemp bool,
+	appConfig AppConfig,
 ) {
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 	targetPlainFile := targetFile + "." + appConfig.PlainFileExtension
@@ -298,7 +294,7 @@ func unlockOperation(
 		return
 	}
 
-	if rawOperation == "temp" {
+	if isTemp {
 		tempOperation(
 			targetPlainFile,
 			password,
@@ -314,7 +310,7 @@ func unlockOperation(
 
 func printOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig AppConfig,
 ) {
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -366,7 +362,7 @@ func printOperation(
 	}
 
 	var result string = ""
-	width, height, err := terminal.GetSize(0)
+	width, height, err := term.GetSize(0)
 
 	firstMessage := "Vault Content:"
 	lastMessage := "Don't forget to use 'clear'!"
@@ -417,7 +413,7 @@ func tempOperation(
 	targetPlainFile string,
 	password string,
 	sourceVaultFile string,
-	appConfig config.AppConfig,
+	appConfig AppConfig,
 ) {
 
 	fmt.Println("Unlocked for 5 seconds!")
