@@ -45,6 +45,12 @@ sudo ./update-golang.sh
 ```
 
 ## Build
+Clone the repo:
+```sh
+git clone https://github.com/NobleMajo/vault.git
+cd vault
+```
+
 Build the vault binary from source code:
 ```sh
 go build -o bin/vault cmd/main.go
@@ -54,55 +60,58 @@ go build -o bin/vault cmd/main.go
 ## Help
 Run the help command on the binary
 ```sh
-./vault -h
+./vault
+# or npm i -g .
+# and then use "vault" anywhere on the machine
 ```
 
-Note: Almost everything in vault can be set using a flag and the corresponding environment variable.
-Check out the help page:
+Output:
 ```rust
-Usage of vault:
-  -b string
-        File extension for encrypted and unencrypted backup files (default "bak")
-  -backup-ext string
-        File extension for encrypted and unencrypted backup files (default "bak")
-  -k string
-        Path to the key directory to search for asymetric keys (default "~/.ssh")
-  -key-dir string
-        Path to the key directory to search for asymetric keys (default "~/.ssh")
-  -p string
-        File extension for unencrypted plain files (default "txt")
+Usage:  vault [OPTIONS] COMMAND
+
+CLI tool for secure file encryption and decryption.
+
+Commands:
+  help,
+  lock,
+  init,
+  print,
+  unlock,
+  temp
+
+Options:
+  -clean-print
+        On print operation vault will only print the plaintext without extra info (bool, default: false)
+  -do-aes256
+        Use AES256 keys for asymetric vault encryption (bool, default: true) (default true)
+  -do-x509
+        Use X509 keys for symetric encryption (bool, default: true) (default true)
   -plain-ext string
-        File extension for unencrypted plain files (default "txt")
-  -private-key-names string
-        List of private keys names(','-seperated) (default "id_rsa")
-  -public-key-names string
-        List of public keys names(','-seperated) (default "id_rsa.pub")
-  -r string
-        List of private keys names (default "id_rsa")
-  -u string
-        List of public keys names (default "id_rsa.pub")
-  -v string
-        File extension for encrypted vault files (default "vt")
+        File extension for unencrypted plain files (string, default: txt) (default "txt")
+  -private-key-path string
+        Private keys path (string, default: ~/.ssh/id_rsa) (default "~/.ssh/id_rsa")
+  -public-key-path string
+        Public keys path (string, default: ~/.ssh/id_rsa.pub) (default "~/.ssh/id_rsa.pub")
   -vault-ext string
-        File extension for encrypted vault files (default "vt")
+        File extension for encrypted vault files (string, default: vt) (default "vt")
 ```
 
 # Usage
 Vault operations are sub commands defined via the first command line argument.
+
+### init
+Create a new locked vault file:
+```sh
+vault init
+```
+
+**OR**
 
 ### lock
 Add some content to your `vault.txt` and lock it:
 ```sh
 vim vault.txt
 vault lock
-```
-
-**OR**
-
-### init
-Create a new locked vault file:
-```sh
-vault init
 ```
 
 ### unlock
