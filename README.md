@@ -32,6 +32,8 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
 Vault uses asymmetric RSA encryption and symmetric AES-256 encryption to keep your data as secure as possible.
 To do this, vault uses private and public key on disk (default: `~/.ssh/id_rsa.pub`) and also asks you for a password.
 
+Currently no elliptic curve support! Just rsa.
+
 # Getting Started
 ## Requirements
 For building you need to install go.
