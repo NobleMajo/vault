@@ -2,107 +2,108 @@ package main
 
 import (
 	"bufio"
+	"crypto/rsa"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 	"syscall"
 	"time"
 
+	"coreunit.net/vault/cmd/config"
 	"coreunit.net/vault/internal/stringcrypt"
 	"coreunit.net/vault/internal/stringfs"
 	"golang.org/x/term"
 )
 
+var commands []string
+
 func main() {
-	appConfig := LoadConfig()
-
-	err := stringfs.ParsePath(&appConfig.KeyDir)
-	if err != nil {
-		exitError("Key dir '" + appConfig.KeyDir + "' is not a valid path:\n> " + err.Error())
-	}
-
-	allowedOperations := []string{"lock", "unlock", "temp", "init", "print", "help"}
+	appConfig := config.LoadConfig()
+	commands = []string{"help", "lock", "init", "print", "unlock", "temp"}
 
 	if len(appConfig.Args) == 0 {
-		exitError("First argument needs to be an operation: '" + strings.Join(allowedOperations, "', '") + "'!")
+		PrintHelp()
 		return
 	}
 
 	rawOperation := strings.ToLower(appConfig.Args[0])
 
 	if rawOperation == "help" {
-		fmt.Fprintf(os.Stderr, "Help: Usage of %s:\n", os.Args[0])
-		flag.PrintDefaults()
-		os.Exit(0)
+		PrintHelp()
 		return
 	}
 
-	if !slices.Contains(allowedOperations, rawOperation) {
-		exitError(
-			"First argument needs to be an operation: '" + strings.Join(allowedOperations, "', '") + "'\n" +
-				"Not: '" + rawOperation + "'",
-		)
-		return
-	}
-
-	var targetFile string
-
-	if len(appConfig.Args) >= 2 {
-		targetFile = appConfig.Args[1]
-
-		if strings.HasSuffix(targetFile, "."+appConfig.VaultFileExtension) {
-			targetFile = targetFile[:len(targetFile)-len(appConfig.VaultFileExtension)-1]
-		} else if strings.HasSuffix(targetFile, "."+appConfig.PlainFileExtension) {
-			targetFile = targetFile[:len(targetFile)-len(appConfig.PlainFileExtension)-1]
-		}
-	} else {
-		targetFile = "vault"
-	}
+	stringfs.ParsePath(&appConfig.PublicKeyPath)
+	stringfs.ParsePath(&appConfig.PrivateKeyPath)
+	targetFile := targetFile(appConfig)
 
 	if rawOperation == "lock" {
 		lockOperation(
 			targetFile,
 			appConfig,
 		)
-		return
 	} else if rawOperation == "init" {
 		initOperation(
 			targetFile,
 			appConfig,
 		)
-		return
 	} else if rawOperation == "print" {
 		printOperation(
 			targetFile,
 			appConfig,
 		)
-		return
-	} else if rawOperation == "unlock" || rawOperation == "temp" {
+	} else if rawOperation == "unlock" {
 		unlockOperation(
 			targetFile,
-			rawOperation == "temp",
 			appConfig,
 		)
-		return
+	} else if rawOperation == "temp" {
+		tempOperation(
+			targetFile,
+			appConfig,
+		)
+	} else {
+		fmt.Fprintf(
+			os.Stderr,
+			"%s: '"+rawOperation+"' is not a command.\n"+
+				"See '%s help'",
+			os.Args[0],
+			os.Args[0],
+		)
+	}
+}
+
+func targetFile(
+	appConfig config.AppConfig,
+) string {
+	if len(appConfig.Args) >= 2 {
+		targetFile := appConfig.Args[1]
+
+		if strings.HasSuffix(targetFile, "."+appConfig.VaultFileExtension) {
+			targetFile = targetFile[:len(targetFile)-len(appConfig.VaultFileExtension)-1]
+		} else if strings.HasSuffix(targetFile, "."+appConfig.PlainFileExtension) {
+			targetFile = targetFile[:len(targetFile)-len(appConfig.PlainFileExtension)-1]
+		}
+
+		return targetFile
 	}
 
-	exitError("Unknown and not implemented operation: '" + rawOperation + "'")
+	return "vault"
 }
 
 func exitError(message string) {
-	fmt.Fprintf(os.Stderr, "Help: Usage of %s:\n", os.Args[0])
-	flag.PrintDefaults()
-	fmt.Println("")
-	fmt.Println("ERROR: " + message)
+	fmt.Fprintln(
+		os.Stderr,
+		message,
+	)
 	os.Exit(1)
 }
 
 func initOperation(
 	targetFile string,
-	appConfig AppConfig,
+	appConfig config.AppConfig,
 ) {
 	targetVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -118,25 +119,29 @@ func initOperation(
 		return
 	}
 
-	publicKey, err := stringcrypt.LoadPublicKey(
-		appConfig.KeyDir,
-		appConfig.PublicKeyNames,
-	)
-	if err != nil {
-		exitError("Cant load public key:\n> " + err.Error())
-		return
-	}
-
-	fmt.Println("Enter your new password:")
-	password, err := ReadPassword()
-
-	if err != nil {
-		exitError("Password input error:\n> " + err.Error())
-		return
-	}
-
 	initText := "Hello and welcome to your own vault!\n\n<3"
-	encodedText, err := VaultEncrypt(initText, publicKey, password)
+
+	publicKey, err := stringcrypt.LoadRsaPublicKey(appConfig.PublicKeyPath)
+
+	if err != nil {
+		exitError("Load public key error:\n> " + err.Error())
+		return
+	}
+
+	password, err := PromptNewPassword()
+
+	if err != nil {
+		exitError("Prompt new password error:\n> " + err.Error())
+		return
+	}
+
+	cipherPayload, err := VaultEncrypt(
+		initText,
+		appConfig.DoX509,
+		publicKey,
+		appConfig.DoAES256,
+		password,
+	)
 
 	if err != nil {
 		exitError("Vault encrypt error:\n> " + err.Error())
@@ -145,8 +150,7 @@ func initOperation(
 
 	err = stringfs.SafeWriteFile(
 		targetVaultFile,
-		"."+appConfig.BackupFileExtension,
-		string(encodedText),
+		cipherPayload,
 		0644,
 	)
 
@@ -158,9 +162,8 @@ func initOperation(
 
 func lockOperation(
 	targetFile string,
-	appConfig AppConfig,
+	appConfig config.AppConfig,
 ) {
-	// ENCODING
 	sourcePlainFile := targetFile + "." + appConfig.PlainFileExtension
 	targetVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -169,30 +172,33 @@ func lockOperation(
 		return
 	}
 
-	plainText, err := stringfs.SafeReadFile(sourcePlainFile, "."+appConfig.BackupFileExtension)
+	plainText, err := stringfs.ReadFile(sourcePlainFile)
 	if err != nil {
 		exitError("Read plain source error:\n> " + err.Error())
 		return
 	}
 
-	publicKey, err := stringcrypt.LoadPublicKey(
-		appConfig.KeyDir,
-		appConfig.PublicKeyNames,
+	publicKey, err := stringcrypt.LoadRsaPublicKey(appConfig.PublicKeyPath)
+
+	if err != nil {
+		exitError("Load public key error:\n> " + err.Error())
+		return
+	}
+
+	password, err := PromptNewPassword()
+
+	if err != nil {
+		exitError("Prompt new password error:\n> " + err.Error())
+		return
+	}
+
+	cipherPayload, err := VaultEncrypt(
+		plainText,
+		appConfig.DoX509,
+		publicKey,
+		appConfig.DoAES256,
+		password,
 	)
-	if err != nil {
-		exitError("Cant load public key:\n> " + err.Error())
-		return
-	}
-
-	fmt.Println("Enter your new password:")
-	password, err := ReadPassword()
-
-	if err != nil {
-		exitError("Password input error:\n> " + err.Error())
-		return
-	}
-
-	encodedText, err := VaultEncrypt(plainText, publicKey, password)
 
 	if err != nil {
 		exitError("Vault encrypt error:\n> " + err.Error())
@@ -201,9 +207,8 @@ func lockOperation(
 
 	err = stringfs.SafeWriteFile(
 		targetVaultFile,
-		"."+appConfig.BackupFileExtension,
-		string(encodedText),
-		0644,
+		cipherPayload,
+		0640,
 	)
 
 	if err != nil {
@@ -211,20 +216,12 @@ func lockOperation(
 		return
 	}
 
-	err = stringfs.SafeRemoveFile(sourcePlainFile, "."+appConfig.BackupFileExtension)
-	if err != nil {
-		exitError("Remove source file error:\n> " + err.Error())
-		return
-	}
-
 	fmt.Println("Locked!")
-	os.Exit(0)
 }
 
 func unlockOperation(
 	targetFile string,
-	isTemp bool,
-	appConfig AppConfig,
+	appConfig config.AppConfig,
 ) {
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 	targetPlainFile := targetFile + "." + appConfig.PlainFileExtension
@@ -234,53 +231,44 @@ func unlockOperation(
 		return
 	}
 
-	vaultRaw, err1, vaultBackupRaw, err2 := stringfs.SafeReadBothFiles(sourceVaultFile, "."+appConfig.BackupFileExtension)
-
-	if err1 != nil && err2 != nil {
-		exitError("Read plain source error:\n" + err1.Error())
-		return
-	}
-
-	fmt.Println("Enter your password:")
-	password, err := ReadPassword()
+	vaultRaw, err := stringfs.ReadFile(sourceVaultFile)
 
 	if err != nil {
-		exitError("Password input error:\n> " + err.Error())
+		exitError("Error while read vault source from '" + sourceVaultFile + "':\n> " + err.Error())
 		return
 	}
 
-	privateKey, err := stringcrypt.LoadPrivateKey(
-		appConfig.KeyDir,
-		appConfig.PrivateKeyNames,
-		func() (string, error) {
-			fmt.Println("Enter your private key passphrase:")
-			password, err := ReadPassword()
-			if err != nil {
-				return "", err
-			}
-			return password, nil
-		},
+	privateKey, err := stringcrypt.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
+
+	if err != nil {
+		exitError("Load private key error:\n> " + err.Error())
+		return
+	}
+
+	password, err := PromptPassword()
+
+	if err != nil {
+		exitError("Prompt password error:\n> " + err.Error())
+		return
+	}
+
+	plainText, err := VaultDecrypt(
+		vaultRaw,
+		appConfig.DoX509,
+		privateKey,
+		appConfig.DoAES256,
+		password,
 	)
-	if err != nil {
-		exitError("Cant load public key:\n> " + err.Error())
-		return
-	}
 
-	decodedText, err := VaultDecrypt(vaultRaw, privateKey, password)
 	if err != nil {
-		fmt.Println("The original vault file has an X509 decryption error, try using backup file instead")
-		decodedText, err = VaultDecrypt(vaultBackupRaw, privateKey, password)
-		if err != nil {
-			exitError("Decrypt error:\n> " + err.Error())
-			return
-		}
+		exitError("Vault decrypt error:\n> " + err.Error())
+		return
 	}
 
 	err = stringfs.SafeWriteFile(
 		targetPlainFile,
-		"."+appConfig.BackupFileExtension,
-		decodedText,
-		0644,
+		plainText,
+		0640,
 	)
 
 	if err != nil {
@@ -288,154 +276,55 @@ func unlockOperation(
 		return
 	}
 
-	err = stringfs.SafeRemoveFile(sourceVaultFile, "."+appConfig.BackupFileExtension)
+	err = stringfs.RemoveFile(sourceVaultFile)
 	if err != nil {
 		exitError("Remove source file error:\n> " + err.Error())
 		return
 	}
 
-	if isTemp {
-		tempOperation(
-			targetPlainFile,
-			password,
-			sourceVaultFile,
-			appConfig,
-		)
-		return
-	}
-
 	fmt.Println("Unlocked!")
-	os.Exit(0)
-}
-
-func printOperation(
-	targetFile string,
-	appConfig AppConfig,
-) {
-	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
-
-	if _, err := os.Stat(sourceVaultFile); errors.Is(err, os.ErrNotExist) {
-		exitError("Source vault file '" + sourceVaultFile + "' does not exist!")
-		return
-	}
-
-	vaultRaw, err1, vaultBackupRaw, err2 := stringfs.SafeReadBothFiles(sourceVaultFile, "."+appConfig.BackupFileExtension)
-
-	if err1 != nil && err2 != nil {
-		exitError("Read plain source error:\n" + err1.Error())
-		return
-	}
-
-	fmt.Println("Enter your password:")
-	password, err := ReadPassword()
-
-	if err != nil {
-		exitError("Password input error:\n> " + err.Error())
-		return
-	}
-
-	privateKey, err := stringcrypt.LoadPrivateKey(
-		appConfig.KeyDir,
-		appConfig.PrivateKeyNames,
-		func() (string, error) {
-			fmt.Println("Enter your private key passphrase:")
-			password, err := ReadPassword()
-			if err != nil {
-				return "", err
-			}
-			return password, nil
-		},
-	)
-	if err != nil {
-		exitError("Cant load public key:\n> " + err.Error())
-		return
-	}
-
-	decodedText, err := VaultDecrypt(vaultRaw, privateKey, password)
-	if err != nil {
-		fmt.Println("The original vault file has an X509 decryption error, try using backup file instead")
-		decodedText, err = VaultDecrypt(vaultBackupRaw, privateKey, password)
-		if err != nil {
-			exitError("Decrypt error:\n> " + err.Error())
-			return
-		}
-	}
-
-	var result string = ""
-	width, height, err := term.GetSize(0)
-
-	firstMessage := "Vault Content:"
-	lastMessage := "Don't forget to use 'clear'!"
-
-	if err != nil || width < 16 {
-		result += firstMessage + "\n"
-		if err != nil || height > 16 {
-			result += strings.Repeat("-", width) + "\n"
-		}
-		result += "\n"
-		result += decodedText + "\n"
-		result += "\n"
-		if err != nil || height > 16 {
-			result += strings.Repeat("-", width) + "\n"
-		}
-		result += lastMessage
-	} else {
-		firstSpaces := width/2 - (len(firstMessage) / 2)
-		lastSpaces := width/2 - (len(lastMessage) / 2)
-
-		if height > 16 {
-			result += "\n"
-		}
-		result += strings.Repeat(" ", firstSpaces) + firstMessage + "\n"
-		if height > 16 {
-			result += "\n"
-		}
-		result += "#" + strings.Repeat("-", width-2) + "#\n"
-		if height > 16 {
-			result += "|\n"
-		}
-		result += "|  " + strings.Join(strings.Split(decodedText, "\n"), "\n|  ") + "\n"
-		if height > 16 {
-			result += "|\n"
-		}
-		result += "#" + strings.Repeat("-", width-2) + "#\n"
-		if height > 16 {
-			result += "\n"
-		}
-		result += strings.Repeat(" ", lastSpaces) + lastMessage
-	}
-
-	fmt.Println(result)
-	os.Exit(0)
 }
 
 func tempOperation(
-	targetPlainFile string,
-	password string,
-	sourceVaultFile string,
-	appConfig AppConfig,
+	targetFile string,
+	appConfig config.AppConfig,
 ) {
+	unlockOperation(targetFile, appConfig)
+
+	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
+	targetPlainFile := targetFile + "." + appConfig.PlainFileExtension
 
 	fmt.Println("Unlocked for 5 seconds!")
 	time.Sleep(5 * time.Second)
 	fmt.Println("Lock vault now...")
 
-	plainText, err := stringfs.SafeReadFile(targetPlainFile, "."+appConfig.BackupFileExtension)
+	plainText, err := stringfs.ReadFile(targetPlainFile)
 	if err != nil {
 		exitError("Read plain source error:\n> " + err.Error())
 		return
 	}
 
-	publicKey, err := stringcrypt.LoadPublicKey(
-		appConfig.KeyDir,
-		appConfig.PublicKeyNames,
-	)
+	publicKey, err := stringcrypt.LoadRsaPublicKey(appConfig.PublicKeyPath)
+
 	if err != nil {
-		exitError("Cant load public key:\n> " + err.Error())
+		exitError("Load public key error:\n> " + err.Error())
 		return
 	}
 
-	encodedText, err := VaultEncrypt(plainText, publicKey, password)
+	password, err := PromptNewPassword()
+
+	if err != nil {
+		exitError("Prompt new password error:\n> " + err.Error())
+		return
+	}
+
+	encodedText, err := VaultEncrypt(
+		plainText,
+		appConfig.DoX509,
+		publicKey,
+		appConfig.DoAES256,
+		password,
+	)
 
 	if err != nil {
 		exitError("Vault encrypt error:\n> " + err.Error())
@@ -444,8 +333,7 @@ func tempOperation(
 
 	err = stringfs.SafeWriteFile(
 		sourceVaultFile,
-		"."+appConfig.BackupFileExtension,
-		string(encodedText),
+		encodedText,
 		0644,
 	)
 
@@ -454,51 +342,151 @@ func tempOperation(
 		return
 	}
 
-	err = stringfs.SafeRemoveFile(targetPlainFile, "."+appConfig.BackupFileExtension)
-	if err != nil {
+	fmt.Println("Locked again!")
+}
 
-		exitError("Remove source file error:\n> " + err.Error())
+func printOperation(
+	targetFile string,
+	appConfig config.AppConfig,
+) {
+	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
+
+	if _, err := os.Stat(sourceVaultFile); errors.Is(err, os.ErrNotExist) {
+		exitError("Source vault file '" + sourceVaultFile + "' does not exist!")
 		return
 	}
 
-	fmt.Println("Locked again!")
-	os.Exit(0)
+	vaultRaw, err := stringfs.ReadFile(sourceVaultFile)
+
+	if err != nil {
+		exitError("Error while read vault source from '" + sourceVaultFile + "':\n> " + err.Error())
+		return
+	}
+
+	privateKey, err := stringcrypt.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
+
+	if err != nil {
+		exitError("Load private key error:\n> " + err.Error())
+		return
+	}
+
+	password, err := PromptPassword()
+
+	if err != nil {
+		exitError("Prompt password error:\n> " + err.Error())
+		return
+	}
+
+	plainText, err := VaultDecrypt(
+		vaultRaw,
+		appConfig.DoX509,
+		privateKey,
+		appConfig.DoAES256,
+		password,
+	)
+
+	if err != nil {
+		exitError("Decrypt error:\n> " + err.Error())
+		return
+	}
+
+	if appConfig.CleanPrint {
+		fmt.Println(plainText)
+	} else {
+		fmt.Println(
+			"### Vault Content:\n\n" +
+				plainText + "\n\n" +
+				"### Don't forget to clear!",
+		)
+	}
+}
+
+func PromptNewPassword() (string, error) {
+	fmt.Println("Enter your new vault password:")
+	newPassword, err := ReadPassword()
+	if err != nil {
+		return "", err
+	}
+	fmt.Println("Re-enter your new vault password:")
+
+	newPassword2, err := ReadPassword()
+	if err != nil {
+		return "", err
+	}
+
+	if newPassword != newPassword2 {
+		return "", fmt.Errorf("passwords don't match")
+	}
+
+	return newPassword, nil
+}
+
+func PromptPassword() (string, error) {
+	fmt.Println("Enter your vault password:")
+	newPassword, err := ReadPassword()
+	if err != nil {
+		return "", err
+	}
+
+	return newPassword, nil
 }
 
 func VaultEncrypt(
-	rawContent string,
-	publicKey string,
-	password string,
+	payload string,
+	doX509 bool,
+	X509PublicKey *rsa.PublicKey,
+	doAES256 bool,
+	AES256Key string,
 ) (string, error) {
-	encodedContent, err := stringcrypt.AesEncrypt(password, rawContent)
-	if err != nil {
-		return "", fmt.Errorf("aes encrypt error:\n> %v", err)
+	if !doX509 && !doAES256 {
+		return "", fmt.Errorf("no encryption method selected")
+	}
+	var err error
+
+	if doAES256 {
+		payload, err = stringcrypt.AES256Encrypt(AES256Key, payload)
+		if err != nil {
+			return "", fmt.Errorf("AES256 encrypt error, maybe wrong password:\n> %v", err)
+		}
 	}
 
-	encodedContent, err = stringcrypt.X509Encrypt(publicKey, encodedContent)
-	if err != nil {
-		return "", fmt.Errorf("x509 encrypt error:\n> %v", err)
+	if doX509 {
+		payload, err = stringcrypt.X509Encrypt(X509PublicKey, payload)
+		if err != nil {
+			return "", fmt.Errorf("x509 encrypt error:\n> %v", err)
+		}
 	}
 
-	return encodedContent, nil
+	return payload, nil
 }
 
 func VaultDecrypt(
-	encodedContent string,
-	privateKey string,
-	password string,
+	payload string,
+	doX509 bool,
+	X509PrivateKey *rsa.PrivateKey,
+	doAES256 bool,
+	AES256Key string,
 ) (string, error) {
-	decodedText, err := stringcrypt.X509Decrypt(privateKey, encodedContent)
-	if err != nil {
-		return "", fmt.Errorf("x509 decrypt error:\n> %v", err)
+	if !doX509 && !doAES256 {
+		return "", fmt.Errorf("no decryption method selected")
+	}
+	var err error
+
+	if doX509 {
+		payload, err = stringcrypt.X509Decrypt(X509PrivateKey, payload)
+		if err != nil {
+			return "", fmt.Errorf("x509 decrypt error:\n> %v", err)
+		}
 	}
 
-	decodedText, err = stringcrypt.AesDecrypt(password, decodedText)
-	if err != nil {
-		return "", fmt.Errorf("aes decrypt error, maybe wrong password:\n> %v", err)
+	if doAES256 {
+		payload, err = stringcrypt.AES256Decrypt(AES256Key, payload)
+		if err != nil {
+			return "", fmt.Errorf("AES256 decrypt error, maybe wrong password:\n> %v", err)
+		}
 	}
 
-	return decodedText, nil
+	return payload, nil
 }
 
 func ReadPassword() (string, error) {
@@ -521,4 +509,23 @@ func ReadLine() (string, error) {
 	}
 
 	return string(rawData), nil
+}
+
+func PrintHelp() {
+	fmt.Printf(
+		"Usage:  %s [OPTIONS] COMMAND\n"+
+			"\n"+
+			"CLI tool for secure file encryption and decryption.\n"+
+			"\n"+
+			"Commands:\n"+
+			"  "+strings.Join(
+			commands,
+			",\n  ",
+		)+"\n"+
+			"\n"+
+			"Options:\n",
+		os.Args[0],
+	)
+	flag.PrintDefaults()
+	fmt.Println()
 }
