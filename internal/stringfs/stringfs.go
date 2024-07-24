@@ -1,40 +1,9 @@
 package stringfs
 
 import (
-	"errors"
-	"fmt"
 	"io/fs"
 	"os"
-	"strings"
 )
-
-func ParsePath(path *string) error {
-	if path == nil {
-		return errors.New("path is nil")
-	}
-
-	*path = strings.TrimSpace(*path)
-
-	if strings.HasPrefix(*path, "~") {
-		userHome, err := os.UserHomeDir()
-		if err != nil {
-			return errors.New("cant get users home dir:\n> " + err.Error())
-		}
-
-		*path = strings.Replace(*path, "~", userHome, 1)
-	}
-
-	if !strings.HasPrefix(*path, "/") {
-		wd, err := os.Getwd()
-		if err != nil {
-			return errors.New("cant get current working dir:\n> " + err.Error())
-		}
-
-		*path = wd + "/" + *path
-	}
-
-	return nil
-}
 
 func RemoveFile(path string) error {
 	exists, isDir := IsDir(path)
@@ -66,10 +35,6 @@ func WriteFile(path string, content string, mode fs.FileMode) error {
 
 func ReadFile(path string) (string, error) {
 	rawData, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Print(err)
-	}
-
 	if err != nil {
 		return "", err
 	}

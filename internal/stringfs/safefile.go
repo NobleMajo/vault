@@ -1,70 +1,37 @@
 package stringfs
 
 import (
+	"errors"
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
-func SafeRemoveFile(path string, backupSuffix string) error {
-	RemoveFile(path + backupSuffix)
-	err := RemoveFile(path)
-	if err != nil {
-		return err
-	}
+func RemoveTmpSafeFile(path string) {
+	dir, file := filepath.Split(path)
 
-	return nil
+	RemoveFile(dir + ".tmp_" + file)
 }
 
-func SafeWriteFile(path string, backupSuffix string, content string, mode fs.FileMode) error {
+func SafeWriteFile(path string, content string, mode fs.FileMode) error {
+	dir, file := filepath.Split(path)
 	rawContent := []byte(content)
 
 	err := os.WriteFile(
-		path,
+		dir+".tmp_"+file,
 		rawContent,
 		mode,
 	)
 
 	if err != nil {
-		return err
+		return errors.New("Write file error: " + err.Error())
 	}
 
-	err = os.WriteFile(
-		path+backupSuffix,
-		rawContent,
-		mode,
-	)
+	err = os.Rename(dir+".tmp_"+file, path)
 
 	if err != nil {
-		return err
+		return errors.New("Rename file error: " + err.Error())
 	}
 
 	return nil
-}
-
-func SafeReadFile(path string, backupSuffix string) (string, error) {
-	rawData, err := os.ReadFile(path)
-	if err != nil {
-		rawData, err := os.ReadFile(path + backupSuffix)
-		if err != nil {
-			return "", err
-		}
-		return string(rawData), nil
-	}
-
-	return string(rawData), nil
-}
-
-func SafeReadBothFiles(path string, backupSuffix string) (string, error, string, error) {
-	rawData1, err1 := os.ReadFile(path)
-	rawData2, err2 := os.ReadFile(path + backupSuffix)
-
-	return string(rawData1), err1, string(rawData2), err2
-}
-
-func IsSafeFile(path string, backupSuffix string) (bool, bool) {
-	exists, isDir := IsDir(path)
-	existsBackup, isDirBackup := IsDir(path + backupSuffix)
-
-	return exists && !isDir,
-		existsBackup && !isDirBackup
 }
