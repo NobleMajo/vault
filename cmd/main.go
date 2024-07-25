@@ -18,21 +18,27 @@ import (
 	"golang.org/x/term"
 )
 
-var commands []string
-
 func main() {
-	appConfig := config.LoadConfig()
-	commands = []string{"help", "lock", "init", "print", "unlock", "temp"}
+	commands := map[string]string{
+		"help":   "Show this help",
+		"lock":   "Lock the vault",
+		"init":   "Initialize the vault",
+		"print":  "Print the vault",
+		"unlock": "Unlock the vault",
+		"temp":   "Create a temporary vault",
+	}
+
+	appConfig := config.LoadConfig(commands)
 
 	if len(appConfig.Args) == 0 {
-		PrintHelp()
+		flag.Usage()
 		return
 	}
 
-	rawOperation := strings.ToLower(appConfig.Args[0])
+	rawCommand := strings.ToLower(appConfig.Args[0])
 
-	if rawOperation == "help" {
-		PrintHelp()
+	if rawCommand == "help" {
+		flag.Usage()
 		return
 	}
 
@@ -40,27 +46,27 @@ func main() {
 	stringfs.ParsePath(&appConfig.PrivateKeyPath)
 	targetFile := targetFile(appConfig)
 
-	if rawOperation == "lock" {
+	if rawCommand == "lock" {
 		lockOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawOperation == "init" {
+	} else if rawCommand == "init" {
 		initOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawOperation == "print" {
+	} else if rawCommand == "print" {
 		printOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawOperation == "unlock" {
+	} else if rawCommand == "unlock" {
 		unlockOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawOperation == "temp" {
+	} else if rawCommand == "temp" {
 		tempOperation(
 			targetFile,
 			appConfig,
@@ -68,7 +74,7 @@ func main() {
 	} else {
 		fmt.Fprintf(
 			os.Stderr,
-			"%s: '"+rawOperation+"' is not a command.\n"+
+			"%s: '"+rawCommand+"' is not a command.\n"+
 				"See '%s help'",
 			os.Args[0],
 			os.Args[0],
@@ -210,25 +216,6 @@ func ReadLine() (string, error) {
 	}
 
 	return string(rawData), nil
-}
-
-func PrintHelp() {
-	fmt.Printf(
-		"Usage:  %s [OPTIONS] COMMAND\n"+
-			"\n"+
-			"CLI tool for secure file encryption and decryption.\n"+
-			"\n"+
-			"Commands:\n"+
-			"  "+strings.Join(
-			commands,
-			",\n  ",
-		)+"\n"+
-			"\n"+
-			"Options:\n",
-		os.Args[0],
-	)
-	flag.PrintDefaults()
-	fmt.Println()
 }
 
 func initOperation(
