@@ -1,6 +1,6 @@
 {
   "name": "vault",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "description": "crasy secret file en/decoder",
   "scripts": {
     "build": "go build -o vault cmd/main.go",
