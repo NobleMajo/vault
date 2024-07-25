@@ -67,17 +67,18 @@ Run the help command on the binary
 
 Output:
 ```rust
-Usage:  vault [OPTIONS] COMMAND
+Usage:  ./vault [OPTIONS] COMMAND
 
 CLI tool for secure file encryption and decryption.
 
-Commands:
-  help,
-  lock,
-  init,
-  print,
-  unlock,
-  temp
+Commands
+  help    Show this help
+  lock    Lock the vault
+  init    Initialize the vault
+  print   Print the vault
+  unlock  Unlock the vault
+  temp    Create a temporary vault
+
 
 Options:
   -clean-print
