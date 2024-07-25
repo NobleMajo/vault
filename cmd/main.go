@@ -290,6 +290,8 @@ func initOperation(
 	}
 }
 
+var lastUsedPassword string
+
 func lockOperation(
 	targetFile string,
 	appConfig config.AppConfig,
@@ -315,7 +317,7 @@ func lockOperation(
 		return
 	}
 
-	password, err := PromptNewPassword()
+	lastUsedPassword, err = PromptNewPassword()
 
 	if err != nil {
 		exitError("Prompt new password error:\n> " + err.Error())
@@ -327,7 +329,7 @@ func lockOperation(
 		appConfig.DoX509,
 		publicKey,
 		appConfig.DoAES256,
-		[]byte(password),
+		[]byte(lastUsedPassword),
 	)
 
 	if err != nil {
@@ -455,19 +457,12 @@ func tempOperation(
 		return
 	}
 
-	password, err := PromptNewPassword()
-
-	if err != nil {
-		exitError("Prompt new password error:\n> " + err.Error())
-		return
-	}
-
 	encodedText, err := VaultEncrypt(
 		[]byte(plainText),
 		appConfig.DoX509,
 		publicKey,
 		appConfig.DoAES256,
-		[]byte(password),
+		[]byte(lastUsedPassword),
 	)
 
 	if err != nil {
