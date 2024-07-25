@@ -9,11 +9,13 @@ func TestParsePath(t *testing.T) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Errorf("cant get current working dir:\n> " + err.Error())
+		return
 	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		t.Errorf("cant get users home dir:\n> " + err.Error())
+		return
 	}
 
 	tests := []struct {
@@ -35,13 +37,16 @@ func TestParsePath(t *testing.T) {
 			if test.expectError {
 				if err == nil {
 					t.Errorf("expected error for path %s, but got none", test.input)
+					return
 				}
 			} else {
 				if err != nil {
 					t.Errorf("did not expect error for path %s, but got %v", test.input, err)
+					return
 				}
 				if test.input != test.expected {
 					t.Errorf("expected %s, but got %s", test.expected, test.input)
+					return
 				}
 			}
 		})
@@ -53,6 +58,7 @@ func TestParsePathFrom(t *testing.T) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		t.Errorf("cant get users home dir:\n> " + err.Error())
+		return
 	}
 
 	tests := []struct {
@@ -74,13 +80,16 @@ func TestParsePathFrom(t *testing.T) {
 			if test.expectError {
 				if err == nil {
 					t.Errorf("expected error for path %s, but got none", test.input)
+					return
 				}
 			} else {
 				if err != nil {
 					t.Errorf("did not expect error for path %s, but got %v", test.input, err)
+					return
 				}
 				if test.input != test.expected {
 					t.Errorf("expected %s, but got %s", test.expected, test.input)
+					return
 				}
 			}
 		})
