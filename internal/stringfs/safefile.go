@@ -14,12 +14,15 @@ func RemoveTmpSafeFile(path string) {
 }
 
 func SafeWriteFile(path string, content string, mode fs.FileMode) error {
+	return SafeWriteFileBytes(path, []byte(content), mode)
+}
+
+func SafeWriteFileBytes(path string, content []byte, mode fs.FileMode) error {
 	dir, file := filepath.Split(path)
-	rawContent := []byte(content)
 
 	err := os.WriteFile(
 		dir+".tmp_"+file,
-		rawContent,
+		content,
 		mode,
 	)
 
