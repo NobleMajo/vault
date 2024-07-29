@@ -1,7 +1,7 @@
 {
   "name": "vault",
-  "version": "0.1.2",
-  "description": "crasy secret file en/decoder",
+  "version": "0.1.3",
+  "description": "File encryption and decryption cli tool written in go",
   "scripts": {
     "build": "go build -o vault cmd/main.go",
     "dev": "nodemon -w ./cmd -w ./internal -w ./pkg --ext *.go -x \"npm run test && npm run build\"",
