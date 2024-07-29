@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -159,43 +158,6 @@ func initCommand(appConfig *AppConfig) *cobra.Command {
 	return cmd
 }
 
-func EnvIsString(envVar string, existCallback func(value string)) {
-	value := os.Getenv(envVar)
-	if len(value) == 0 {
-		return
-	}
-
-	existCallback(value)
-}
-
-func EnvIsInt(envVar string, existCallback func(value int)) {
-	value := os.Getenv(envVar)
-	if len(value) == 0 {
-		return
-	}
-
-	intValue, err := strconv.Atoi(value)
-	if err != nil {
-		return
-	}
-
-	existCallback(intValue)
-}
-
-func EnvIsBool(envVar string, existCallback func(value bool)) {
-	value := os.Getenv(envVar)
-	if len(value) == 0 {
-		return
-	}
-
-	boolValue, err := strconv.ParseBool(value)
-	if err != nil {
-		return
-	}
-
-	existCallback(boolValue)
-}
-
 func loadEnvVars(appConfig *AppConfig) {
 	EnvIsString("VAULT_PRIVATE_KEY_PATH", func(value string) {
 		appConfig.PrivateKeyPath = value
@@ -230,12 +192,15 @@ func loadEnvVars(appConfig *AppConfig) {
 	})
 }
 
-func ParseConfig() *AppConfig {
+func ParseConfig(
+	version string,
+	commit string,
+) *AppConfig {
 	appConfig := defaultAppConfig()
 
 	rootCmd := &cobra.Command{
 		Use: "vault",
-		Short: "File encryption and decryption cli tool written in go.\n\n" +
+		Short: "File encryption and decryption cli tool written in go.\n" +
 			"For more help, visit https://github.com/NobleMajo/vault",
 		Run: func(cmd *cobra.Command, args []string) {
 			appConfig.ShowHelp = true
@@ -267,7 +232,7 @@ func ParseConfig() *AppConfig {
 		fmt.Println("Verbose mode enabled")
 	}
 	if appConfig.ShowVersion {
-		fmt.Println("Version: 0.0.1")
+		fmt.Println("Vault version " + version + ", build " + commit)
 		os.Exit(0)
 	}
 

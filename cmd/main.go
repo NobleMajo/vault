@@ -17,8 +17,11 @@ import (
 	"golang.org/x/term"
 )
 
+var Version string = "?.?.?"
+var Commit string = "???????"
+
 func main() {
-	appConfig := config.ParseConfig()
+	appConfig := config.ParseConfig(Version, Commit)
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)
 	stringfs.ParsePath(&appConfig.PrivateKeyPath)

@@ -3,7 +3,7 @@
   "version": "0.1.3",
   "description": "File encryption and decryption cli tool written in go",
   "scripts": {
-    "build": "go build -o vault cmd/main.go",
+    "build": "go build -o vault -ldflags=\"-X main.Version=$npm_package_version -X main.Commit=$(git rev-parse --short HEAD)\" cmd/main.go",
     "dev": "nodemon -w ./cmd -w ./internal -w ./pkg --ext *.go -x \"npm run test && npm run build\"",
     "test": "go test ./..."
   },

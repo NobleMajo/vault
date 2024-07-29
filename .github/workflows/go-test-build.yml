@@ -2,28 +2,31 @@ name: Go build and test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "**.go"
 
 permissions:
-    contents: write
-    packages: write
+  contents: write
+  packages: write
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - name: Test
-      run: go test -v ./...
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
 
-    - name: Build
-      run: go build -o vault cmd/main.go
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
