@@ -24,6 +24,7 @@ jobs:
 
   releases-matrix:
     name: Release Go Binary
+    needs: load-vars
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,4 +46,4 @@ jobs:
           binary_name: "vault"
           project_path: "./cmd"
           extra_files: LICENSE README.md
-          ldflags: "-X main.Version=$APP_VERSION -X main.Commit=$APP_COMMIT"
+          ldflags: "-X main.Version=${{ env.APP_VERSION }} -X main.Commit=${{ env.APP_COMMIT }}"
