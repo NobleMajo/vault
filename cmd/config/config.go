@@ -231,6 +231,7 @@ func ParseConfig(
 	if appConfig.Verbose {
 		fmt.Println("Verbose mode enabled")
 	}
+
 	if appConfig.ShowVersion {
 		fmt.Println("Vault version " + version + ", build " + commit)
 		os.Exit(0)
