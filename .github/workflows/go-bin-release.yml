@@ -24,6 +24,7 @@ jobs:
 
   releases-matrix:
     name: Release Go Binary
+    needs: load-vars
     runs-on: ubuntu-latest
     strategy:
       matrix:
