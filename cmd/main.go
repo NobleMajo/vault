@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/rsa"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -19,54 +18,33 @@ import (
 )
 
 func main() {
-	commands := map[string]string{
-		"help":   "Show this help",
-		"lock":   "Lock the vault",
-		"init":   "Initialize the vault",
-		"print":  "Print the vault",
-		"unlock": "Unlock the vault",
-		"temp":   "Create a temporary vault",
-	}
-
-	appConfig := config.LoadConfig(commands)
-
-	if len(appConfig.Args) == 0 {
-		flag.Usage()
-		return
-	}
-
-	rawCommand := strings.ToLower(appConfig.Args[0])
-
-	if rawCommand == "help" {
-		flag.Usage()
-		return
-	}
+	appConfig := config.ParseConfig()
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)
 	stringfs.ParsePath(&appConfig.PrivateKeyPath)
 	targetFile := targetFile(appConfig)
 
-	if rawCommand == "lock" {
+	if appConfig.SubCommand == "lock" {
 		lockOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawCommand == "init" {
+	} else if appConfig.SubCommand == "init" {
 		initOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawCommand == "print" {
+	} else if appConfig.SubCommand == "print" {
 		printOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawCommand == "unlock" {
+	} else if appConfig.SubCommand == "unlock" {
 		unlockOperation(
 			targetFile,
 			appConfig,
 		)
-	} else if rawCommand == "temp" {
+	} else if appConfig.SubCommand == "temp" {
 		tempOperation(
 			targetFile,
 			appConfig,
@@ -74,7 +52,7 @@ func main() {
 	} else {
 		fmt.Fprintf(
 			os.Stderr,
-			"%s: '"+rawCommand+"' is not a command.\n"+
+			"%s: '"+appConfig.SubCommand+"' is not a command.\n"+
 				"See '%s help'",
 			os.Args[0],
 			os.Args[0],
@@ -83,7 +61,7 @@ func main() {
 }
 
 func targetFile(
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) string {
 	if len(appConfig.Args) >= 2 {
 		targetFile := appConfig.Args[1]
@@ -220,7 +198,7 @@ func ReadLine() (string, error) {
 
 func initOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) {
 	targetVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -254,7 +232,7 @@ func initOperation(
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(initText),
-		appConfig.DoX509,
+		appConfig.DoRSA,
 		publicKey,
 		appConfig.DoAES256,
 		[]byte(password),
@@ -281,7 +259,7 @@ var lastUsedPassword string
 
 func lockOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) {
 	sourcePlainFile := targetFile + "." + appConfig.PlainFileExtension
 	targetVaultFile := targetFile + "." + appConfig.VaultFileExtension
@@ -313,7 +291,7 @@ func lockOperation(
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(plainText),
-		appConfig.DoX509,
+		appConfig.DoRSA,
 		publicKey,
 		appConfig.DoAES256,
 		[]byte(lastUsedPassword),
@@ -340,7 +318,7 @@ func lockOperation(
 
 func unlockOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) {
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 	targetPlainFile := targetFile + "." + appConfig.PlainFileExtension
@@ -373,7 +351,7 @@ func unlockOperation(
 
 	plainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
-		appConfig.DoX509,
+		appConfig.DoRSA,
 		privateKey,
 		appConfig.DoAES256,
 		[]byte(password),
@@ -406,7 +384,7 @@ func unlockOperation(
 
 func tempOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) {
 	var err error
 	decodeTime := 10
@@ -446,7 +424,7 @@ func tempOperation(
 
 	encodedText, err := VaultEncrypt(
 		[]byte(plainText),
-		appConfig.DoX509,
+		appConfig.DoRSA,
 		publicKey,
 		appConfig.DoAES256,
 		[]byte(lastUsedPassword),
@@ -473,7 +451,7 @@ func tempOperation(
 
 func printOperation(
 	targetFile string,
-	appConfig config.AppConfig,
+	appConfig *config.AppConfig,
 ) {
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 
@@ -505,7 +483,7 @@ func printOperation(
 
 	plainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
-		appConfig.DoX509,
+		appConfig.DoRSA,
 		privateKey,
 		appConfig.DoAES256,
 		[]byte(password),
