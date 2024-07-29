@@ -9,24 +9,8 @@ permissions:
   packages: write
 
 jobs:
-  load-vars:
-    name: Load build vars
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Set vars
-        run: |
-          echo APP_COMMIT=$(git rev-parse --short HEAD) >> "$GITHUB_ENV"
-          echo APP_VERSION=$(npm exec -c "echo \$npm_package_version") >> "$GITHUB_ENV"
-          echo "$GITHUB_ENV"
-          cat "$GITHUB_ENV"
-
   releases-matrix:
     name: Release Go Binary
-    needs: load-vars
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -48,4 +32,6 @@ jobs:
           binary_name: "vault"
           project_path: "./cmd"
           extra_files: LICENSE README.md
-          ldflags: "-X main.Version=${{ env.APP_VERSION }} -X main.Commit=${{ env.APP_COMMIT }}"
+          ldflags: "-X main.Version=${{ env.GITHUB_REF_NAME }} -X main.Commit=${{ env.GITHUB_SHA }}"
+
+ 

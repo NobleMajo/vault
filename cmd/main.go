@@ -21,6 +21,7 @@ var Version string = "?.?.?"
 var Commit string = "???????"
 
 func main() {
+	Commit = Commit[0:7]
 	appConfig := config.ParseConfig(Version, Commit)
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)
