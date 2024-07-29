@@ -1,14 +1,18 @@
+# Vault
 ![CI/CD](https://github.com/noblemajo/vault/actions/workflows/go-bin-release.yml/badge.svg)
-![CI/CD](https://github.com/noblemajo/vault/actions/workflows/go-test-build.yml/badge.svg)
+![CI/CD](https://github.com/noblemajo/vault/actions/workflows/go-test-build.yml/badge.svg)  
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-
 ![](https://img.shields.io/badge/dynamic/json?color=green&label=watchers&query=watchers&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=yellow&label=stars&query=stargazers_count&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
 
+Vault is a small and simple CLI tool that encrypt and decrypt plain files into vault-files (`.vt`).
+
+The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
+
 # Table of Contents
+- [Vault](#vault)
 - [Table of Contents](#table-of-contents)
-- [About](#about)
   - [Advertising](#advertising)
   - [Encryption](#encryption)
 - [Getting Started](#getting-started)
@@ -23,11 +27,6 @@
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
-
-# About
-Vault is a small and simple CLI tool that encrypt and decrypt plain `.txt` files into vault-files (`.vt`, a custom file format).
-
-The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
 ## Advertising
 *Are you also a small software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
