@@ -19,11 +19,12 @@ jobs:
           node-version: 20
       - name: Set vars
         run: |
-          echo "APP_VERSION=$(npm exec -c \"echo \\\$npm_package_version\")" >> "$GITHUB_ENV"
-          echo "APP_COMMIT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          echo APP_COMMIT=$(git rev-parse --short HEAD) >> "$GITHUB_ENV"
+          echo APP_VERSION=$(npm exec -c "echo \$npm_package_version") >> "$GITHUB_ENV"
 
   releases-matrix:
     name: Release Go Binary
+    needs: load-vars
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,4 +46,4 @@ jobs:
           binary_name: "vault"
           project_path: "./cmd"
           extra_files: LICENSE README.md
-          ldflags: "-X main.Version=$APP_VERSION -X main.Commit=$APP_COMMIT"
+          ldflags: "-X main.Version=${{ env.APP_VERSION }} -X main.Commit=${{ env.APP_COMMIT }}"
