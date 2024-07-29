@@ -1,3 +1,11 @@
+![CI/CD](https://github.com/noblemajo/vault/actions/workflows/go-bin-release.yml/badge.svg)
+![CI/CD](https://github.com/noblemajo/vault/actions/workflows/go-test-build.yml/badge.svg)
+![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+
+![](https://img.shields.io/badge/dynamic/json?color=green&label=watchers&query=watchers&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
+![](https://img.shields.io/badge/dynamic/json?color=yellow&label=stars&query=stargazers_count&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
+![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
+
 # Table of Contents
 - [Table of Contents](#table-of-contents)
 - [About](#about)
