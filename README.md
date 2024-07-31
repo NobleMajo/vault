@@ -29,7 +29,7 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
 - [Disclaimer](#disclaimer)
 
 ## Advertising
-*Are you also a small software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
+*Are you also just a normal software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
 *Or do you simply have logs or plain text files that you want to send to someone securely?*
 **Then I have exactly what you are looking for today!**
 
