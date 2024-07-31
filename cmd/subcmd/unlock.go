@@ -6,9 +6,7 @@ import (
 	"os"
 
 	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/cryption"
 	"coreunit.net/vault/internal/stringfs"
-	"coreunit.net/vault/internal/userin"
 )
 
 func UnlockOperation(
@@ -30,26 +28,12 @@ func UnlockOperation(
 		return
 	}
 
-	privateKey, err := cryption.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
-
-	if err != nil {
-		exitError("Load private key error:\n> " + err.Error())
-		return
-	}
-
-	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
-		lastUsedPassword, err = userin.PromptPassword()
-
-		if err != nil {
-			exitError("Prompt password error:\n> " + err.Error())
-			return
-		}
-	}
+	loadDecryptionData(appConfig)
 
 	plainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
 		appConfig.DoRSA,
-		privateKey,
+		lastUsedPrivateKey,
 		appConfig.DoAES256,
 		[]byte(lastUsedPassword),
 	)

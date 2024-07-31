@@ -5,8 +5,55 @@ import (
 	"fmt"
 	"os"
 
+	"coreunit.net/vault/cmd/config"
 	"coreunit.net/vault/internal/cryption"
+	"coreunit.net/vault/internal/userin"
 )
+
+var err error
+var lastUsedPrivateKey *rsa.PrivateKey
+var lastUsedPublicKey *rsa.PublicKey
+var lastUsedPassword string
+
+func loadDecryptionData(appConfig *config.AppConfig) {
+	if appConfig.DoRSA {
+		lastUsedPrivateKey, err = cryption.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
+
+		if err != nil {
+			exitError("Load private key error:\n> " + err.Error())
+			return
+		}
+	}
+
+	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+		lastUsedPassword, err = userin.PromptPassword()
+
+		if err != nil {
+			exitError("Prompt new password error:\n> " + err.Error())
+			return
+		}
+	}
+}
+
+func loadEncryptionData(appConfig *config.AppConfig) {
+	if appConfig.DoRSA {
+		lastUsedPublicKey, err = cryption.LoadRsaPublicKey(appConfig.PublicKeyPath)
+
+		if err != nil {
+			exitError("Load public key error:\n> " + err.Error())
+			return
+		}
+	}
+
+	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+		lastUsedPassword, err = userin.PromptNewPassword()
+
+		if err != nil {
+			exitError("Prompt new password error:\n> " + err.Error())
+			return
+		}
+	}
+}
 
 func exitError(message string) {
 	fmt.Fprintln(

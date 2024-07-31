@@ -6,9 +6,7 @@ import (
 	"os"
 
 	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/cryption"
 	"coreunit.net/vault/internal/stringfs"
-	"coreunit.net/vault/internal/userin"
 )
 
 func LockOperation(
@@ -29,26 +27,12 @@ func LockOperation(
 		return
 	}
 
-	publicKey, err := cryption.LoadRsaPublicKey(appConfig.PublicKeyPath)
-
-	if err != nil {
-		exitError("Load public key error:\n> " + err.Error())
-		return
-	}
-
-	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
-		lastUsedPassword, err = userin.PromptNewPassword()
-
-		if err != nil {
-			exitError("Prompt new password error:\n> " + err.Error())
-			return
-		}
-	}
+	loadEncryptionData(appConfig)
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(plainText),
 		appConfig.DoRSA,
-		publicKey,
+		lastUsedPublicKey,
 		appConfig.DoAES256,
 		[]byte(lastUsedPassword),
 	)

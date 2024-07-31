@@ -6,9 +6,7 @@ import (
 	"os"
 
 	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/cryption"
 	"coreunit.net/vault/internal/stringfs"
-	"coreunit.net/vault/internal/userin"
 )
 
 func PrintOperation(
@@ -29,26 +27,14 @@ func PrintOperation(
 		return
 	}
 
-	privateKey, err := cryption.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
-
-	if err != nil {
-		exitError("Load private key error:\n> " + err.Error())
-		return
-	}
-
-	password, err := userin.PromptPassword()
-
-	if err != nil {
-		exitError("Prompt password error:\n> " + err.Error())
-		return
-	}
+	loadDecryptionData(appConfig)
 
 	plainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
 		appConfig.DoRSA,
-		privateKey,
+		lastUsedPrivateKey,
 		appConfig.DoAES256,
-		[]byte(password),
+		[]byte(lastUsedPassword),
 	)
 
 	if err != nil {
