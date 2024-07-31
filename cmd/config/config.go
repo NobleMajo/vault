@@ -21,6 +21,7 @@ type AppConfig struct {
 	DoRSA               bool
 	DoAES256            bool
 	SubCommand          string
+	TempDecodeSeconds   int
 }
 
 func defaultAppConfig() *AppConfig {
@@ -37,6 +38,7 @@ func defaultAppConfig() *AppConfig {
 		DoRSA:              true,
 		DoAES256:           true,
 		SubCommand:         "",
+		TempDecodeSeconds:  10,
 	}
 }
 
@@ -114,6 +116,8 @@ func tempCommand(appConfig *AppConfig) *cobra.Command {
 	cmd.Aliases = append(cmd.Aliases, "tm")
 	cmd.Aliases = append(cmd.Aliases, "t")
 
+	cmd.Flags().IntVarP(&appConfig.TempDecodeSeconds, "temp-seconds", "t", appConfig.TempDecodeSeconds, "Temporary decode time in seconds (VAULT_TEMP_DECODE_SECONDS)")
+
 	addCryptFlags(appConfig, cmd)
 
 	return cmd
@@ -189,6 +193,10 @@ func loadEnvVars(appConfig *AppConfig) {
 
 	EnvIsBool("VAULT_CLEAN_PRINT", func(value bool) {
 		appConfig.CleanPrint = value
+	})
+
+	EnvIsInt("VAULT_TEMP_DECODE_SECONDS", func(value int) {
+		appConfig.TempDecodeSeconds = value
 	})
 }
 

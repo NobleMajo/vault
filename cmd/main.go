@@ -400,26 +400,14 @@ func tempOperation(
 	appConfig *config.AppConfig,
 ) {
 	var err error
-	decodeTime := 10
-
-	if len(appConfig.Args) == 3 && len(appConfig.Args[2]) != 0 {
-		rawDecodeTime := appConfig.Args[2]
-
-		decodeTime, err = strconv.Atoi(strings.TrimSpace(rawDecodeTime))
-
-		if err != nil {
-			exitError("Error parsing decode time to number '" + rawDecodeTime + "':\n> " + err.Error())
-			return
-		}
-	}
 
 	unlockOperation(targetFile, appConfig)
 
 	sourceVaultFile := targetFile + "." + appConfig.VaultFileExtension
 	targetPlainFile := targetFile + "." + appConfig.PlainFileExtension
 
-	fmt.Println("Unlocked for " + strconv.Itoa(decodeTime) + " seconds!")
-	time.Sleep(time.Duration(decodeTime) * time.Second)
+	fmt.Println("Unlocked for " + strconv.Itoa(appConfig.TempDecodeSeconds) + " seconds!")
+	time.Sleep(time.Duration(appConfig.TempDecodeSeconds) * time.Second)
 	fmt.Println("Lock vault now...")
 
 	plainText, err := stringfs.ReadFile(targetPlainFile)
