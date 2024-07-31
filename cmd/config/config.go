@@ -108,7 +108,7 @@ func passwdCommand(appConfig *AppConfig) *cobra.Command {
 		Short: "Changes the password of your vault file",
 		Run: func(cmd *cobra.Command, args []string) {
 			appConfig.Args = args
-			appConfig.SubCommand = "unlock"
+			appConfig.SubCommand = "passwd"
 		},
 	}
 
