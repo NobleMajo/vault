@@ -10,30 +10,57 @@ import (
 )
 
 func PromptNewPassword() (string, error) {
-	fmt.Println("Enter your new vault password:")
-	newPassword, err := ReadPassword()
-	if err != nil {
-		return "", err
-	}
-	fmt.Println("Re-enter your new vault password:")
+	var newPassword string
+	var newPassword2 string
+	var err error
 
-	newPassword2, err := ReadPassword()
-	if err != nil {
-		return "", err
-	}
+	for {
+		fmt.Println("Enter your new vault password:")
+		newPassword, err = ReadPassword()
+		if err != nil {
+			return "", err
+		}
 
-	if newPassword != newPassword2 {
-		return "", fmt.Errorf("passwords don't match")
+		if len(newPassword) < 4 {
+			fmt.Println("Password too short! Use CRTL+C to abort.")
+			continue
+		}
+
+		fmt.Println("Re-enter your new vault password:")
+
+		newPassword2, err = ReadPassword()
+		if err != nil {
+			return "", err
+		}
+
+		if newPassword != newPassword2 {
+			fmt.Println("Passwords do not match! Use CRTL+C to abort.")
+			continue
+		}
+
+		break
 	}
 
 	return newPassword, nil
 }
 
 func PromptPassword() (string, error) {
-	fmt.Println("Enter your vault password:")
-	newPassword, err := ReadPassword()
-	if err != nil {
-		return "", err
+	var newPassword string
+	var err error
+
+	for {
+		fmt.Println("Enter your vault password:")
+		newPassword, err = ReadPassword()
+		if err != nil {
+			return "", err
+		}
+
+		if len(newPassword) < 4 {
+			fmt.Println("Password too short! Use CRTL+C to abort.")
+			continue
+		}
+
+		break
 	}
 
 	return newPassword, nil
