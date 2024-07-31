@@ -320,6 +320,12 @@ func lockOperation(
 		return
 	}
 
+	err = stringfs.RemoveFile(sourcePlainFile)
+	if err != nil {
+		exitError("Remove plain source file error:\n> " + err.Error())
+		return
+	}
+
 	fmt.Println("Locked!")
 }
 
@@ -450,6 +456,12 @@ func tempOperation(
 
 	if err != nil {
 		exitError("Write file error:\n> " + err.Error())
+		return
+	}
+
+	err = stringfs.RemoveFile(targetPlainFile)
+	if err != nil {
+		exitError("Remove temp plain file error:\n> " + err.Error())
 		return
 	}
 
