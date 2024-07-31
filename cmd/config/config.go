@@ -243,7 +243,6 @@ func ParseConfig(
 		printCommand(appConfig),
 		lockCommand(appConfig),
 		unlockCommand(appConfig),
-		initCommand(appConfig),
 		tempCommand(appConfig),
 		passwdCommand(appConfig),
 	)
