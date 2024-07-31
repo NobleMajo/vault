@@ -227,7 +227,7 @@ func ParseConfig(
 
 	rootCmd := &cobra.Command{
 		Use: "vault",
-		Short: "File encryption and decryption cli tool written in go.\n" +
+		Short: "Vault is a file encryption and decryption cli tool written in go.\n" +
 			"For more help, visit https://github.com/NobleMajo/vault",
 		Run: func(cmd *cobra.Command, args []string) {
 			appConfig.ShowHelp = true
