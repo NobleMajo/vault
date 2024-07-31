@@ -102,6 +102,25 @@ func unlockCommand(appConfig *AppConfig) *cobra.Command {
 	return cmd
 }
 
+func passwdCommand(appConfig *AppConfig) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "passwd",
+		Short: "Changes the password of your vault file",
+		Run: func(cmd *cobra.Command, args []string) {
+			appConfig.Args = args
+			appConfig.SubCommand = "unlock"
+		},
+	}
+
+	cmd.Aliases = append(cmd.Aliases, "passw")
+	cmd.Aliases = append(cmd.Aliases, "pass")
+	cmd.Aliases = append(cmd.Aliases, "pa")
+
+	addCryptFlags(appConfig, cmd)
+
+	return cmd
+}
+
 func tempCommand(appConfig *AppConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "temp",
@@ -226,6 +245,7 @@ func ParseConfig(
 		unlockCommand(appConfig),
 		initCommand(appConfig),
 		tempCommand(appConfig),
+		passwdCommand(appConfig),
 	)
 
 	loadEnvVars(appConfig)

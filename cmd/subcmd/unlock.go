@@ -37,11 +37,13 @@ func UnlockOperation(
 		return
 	}
 
-	password, err := userin.PromptPassword()
+	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+		lastUsedPassword, err = userin.PromptPassword()
 
-	if err != nil {
-		exitError("Prompt password error:\n> " + err.Error())
-		return
+		if err != nil {
+			exitError("Prompt password error:\n> " + err.Error())
+			return
+		}
 	}
 
 	plainText, err := VaultDecrypt(
@@ -49,7 +51,7 @@ func UnlockOperation(
 		appConfig.DoRSA,
 		privateKey,
 		appConfig.DoAES256,
-		[]byte(password),
+		[]byte(lastUsedPassword),
 	)
 
 	if err != nil {

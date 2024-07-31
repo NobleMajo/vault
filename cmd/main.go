@@ -49,6 +49,11 @@ func main() {
 			targetFile,
 			appConfig,
 		)
+	} else if appConfig.SubCommand == "passwd" {
+		subcmd.PasswdOperation(
+			targetFile,
+			appConfig,
+		)
 	} else {
 		fmt.Fprintf(
 			os.Stderr,

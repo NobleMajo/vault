@@ -36,11 +36,13 @@ func LockOperation(
 		return
 	}
 
-	lastUsedPassword, err = userin.PromptNewPassword()
+	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+		lastUsedPassword, err = userin.PromptNewPassword()
 
-	if err != nil {
-		exitError("Prompt new password error:\n> " + err.Error())
-		return
+		if err != nil {
+			exitError("Prompt new password error:\n> " + err.Error())
+			return
+		}
 	}
 
 	cipherPayload, err := VaultEncrypt(
