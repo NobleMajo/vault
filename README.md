@@ -72,36 +72,32 @@ Run the help command on the binary
 # and then use "vault" anywhere on the machine
 ```
 
-Output:
-```rust
-Usage:  ./vault [OPTIONS] COMMAND
+Main help output:
+```ts
+Vault is a file encryption and decryption cli tool written in go.
+For more help, visit https://github.com/NobleMajo/vault
 
-CLI tool for secure file encryption and decryption.
+Usage:
+  vault [flags]
+  vault [command]
 
-Commands
-  help    Show this help
-  lock    Lock the vault
-  init    Initialize the vault
-  print   Print the vault
-  unlock  Unlock the vault
-  temp    Create a temporary vault
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  init        Create a initial encrypted vault file for default text
+  lock        Locks your plain file into a vault file
+  passwd      Changes the password of your vault file
+  print       Prints the decrypted content of your vault file
+  temp        Temporary unlocks your vault file into a plain file
+  unlock      Unlocks your vault file into a plain file
+  version     Prints version message
 
+Flags:
+  -h, --help      help for vault
+  -b, --verbose   enable verbose mode (VAULT_VERBOSE)
+  -v, --version   prints version
 
-Options:
-  -clean-print
-        On print operation vault will only print the plaintext without extra info (bool, default: false)
-  -do-aes256
-        Use AES256 keys for asymetric vault encryption (bool, default: true) (default true)
-  -do-x509
-        Use X509 keys for symetric encryption (bool, default: true) (default true)
-  -plain-ext string
-        File extension for unencrypted plain files (string, default: txt) (default "txt")
-  -private-key-path string
-        Private keys path (string, default: ~/.ssh/id_rsa) (default "~/.ssh/id_rsa")
-  -public-key-path string
-        Public keys path (string, default: ~/.ssh/id_rsa.pub) (default "~/.ssh/id_rsa.pub")
-  -vault-ext string
-        File extension for encrypted vault files (string, default: vt) (default "vt")
+Use "vault [command] --help" for more information about a command.
 ```
 
 # Usage
