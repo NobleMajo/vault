@@ -15,7 +15,6 @@
   "author": "NobleMajo",
   "license": "MIT",
   "dependencies": {
-    "@pnpm/make-dedicated-lockfile": "^0.6.16",
     "nodemon": "^3.1.4"
   },
   "bin": {
