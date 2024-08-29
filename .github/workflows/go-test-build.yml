@@ -5,8 +5,8 @@ on:
     branches: ["main"]
     paths:
       - "**.go"
-      - "package*.json"
       - "go.*"
+      - "version.txt"
 
 permissions:
   contents: write
@@ -18,17 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.22"
+          go-version: "1.23"
 
       - name: Test
-        run: npm run test
+        run: make coverage
 
       - name: Build
-        run: npm run build
+        run: make build

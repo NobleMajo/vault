@@ -25,11 +25,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: wangyoucao577/go-release-action@v1
         with:
+          binary_name: "vault"
+          goversion: "1.23"
+          extra_files: LICENSE README.md CONTRIBUTING.md
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          goversion: "1.22"
-          binary_name: "vault"
-          project_path: "./cmd"
-          extra_files: LICENSE README.md
           ldflags: "-X main.Version=${{ github.ref_name }} -X main.Commit=${{ github.sha }}"
