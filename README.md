@@ -17,11 +17,10 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
   - [Encryption](#encryption)
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
-  - [via wget](#via-wget)
-  - [via go](#via-go)
+  - [Install via go](#install-via-go)
+  - [Install via wget](#install-via-wget)
 - [Build](#build)
   - [Build requirements](#build-requirements)
-  - [Install go](#install-go)
 - [Usage](#usage)
   - [Help](#help)
     - [init](#init)
@@ -32,6 +31,7 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
   - [Other filename](#other-filename)
   - [Build](#build-1)
 - [Development](#development)
+  - [Install go](#install-go)
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
@@ -53,9 +53,15 @@ Currently no elliptic curve support! Just rsa.
 
 ## Requirements
 None windows system with `go` or `wget & tar` installed.
-The required go version is in the `go.mod` file.
 
-## via wget
+## Install via go
+###### *For this section go is required, check out the [install go guide](#install-go).*
+
+```sh
+go install https://github.com/NobleMajo/vault
+```
+
+## Install via wget
 ```sh
 BIN_DIR="/usr/local/bin"
 VAULT_VERSION="1.3.3"
@@ -66,23 +72,10 @@ tar -xzvf /tmp/vault.tar.gz -C $BIN_DIR/ vault
 rm /tmp/vault.tar.gz
 ```
 
-## via go
-```sh
-go install https://github.com/NobleMajo/vault
-```
-
 # Build
 ## Build requirements
 To build, you need to install go. 
 The required go version is in the `go.mod` file.
-
-## Install go
-To install go, I can recommend the following repo:
-```sh
-git clone git@github.com:udhos/update-golang.git golang-updater
-cd golang-updater
-sudo ./update-golang.sh
-```
 
 # Usage
 Vault operations are sub commands defined via the first command line argument.
@@ -163,6 +156,8 @@ vault print <filename>
 ```
 
 ## Build
+###### *For this section go is required, check out the [install go guide](#install-go).*
+
 Clone the repo:
 ```sh
 git clone https://github.com/NobleMajo/vault.git
@@ -176,9 +171,21 @@ make build
 ```
 
 # Development
+###### *For this section go is required, check out the [install go guide](#install-go).*
+
 This part is work in process, i want use 'AIR' as autoreload tool:
 ```sh
 make dev #WIP
+```
+
+## Install go
+The required go version for this project is in the `go.mod` file.
+
+To install and update go, I can recommend the following repo:
+```sh
+git clone git@github.com:udhos/update-golang.git golang-updater
+cd golang-updater
+sudo ./update-golang.sh
 ```
 
 # Contributing
