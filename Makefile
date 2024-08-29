@@ -25,3 +25,6 @@ test:
 
 coverage:
 	go test ./... -cover
+
+dev:
+	echo "WIP :)"
