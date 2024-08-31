@@ -6,7 +6,7 @@
 ![](https://img.shields.io/badge/dynamic/json?color=yellow&label=stars&query=stargazers_count&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fnoblemajo%2Fvault)
 
-Vault is a small and simple CLI tool that encrypt and decrypt plain files into vault-files (`.vt`).
+Vault is a minimalistic CLI tool that encrypts and decrypts plain files into Vault files. (`.vt`).
 
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
