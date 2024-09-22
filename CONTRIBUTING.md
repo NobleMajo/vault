@@ -1,32 +1,41 @@
-# Contributing to the Project
+# Contributing
 
-We welcome contributions from the community to help improve the project. Whether you're interested in fixing bugs, adding new features, improving documentation, or providing recommendations, your contributions are valuable to us.
-
-## Ways to Contribute
+We welcome contributions from the community to help improve this project.  
+Your input is valuable to us.
 
 You can contribute to the project in the following ways:
 
-- **Create Issues**: Feel free to create issues for feature requests, bug fixes, documentation improvements, or any recommendations you may have.
-- **Forks and Merge Requests**: Fork the repository, make your changes, and submit a merge request with a clear explanation of the changes you've made and why they're necessary.
+### **Create Issues**  
+Feel free to create issues for:
+- feature requests,
+- bug fixes,
+- documentation improvements,
+- test cases,
+- general questions,
+- or any recommendations you may have.
+### **Merge Requests**  
+Please avoid multiple different changes in one merge request.
+1. **Fork** the repository,
+2. **commit and push** your changes,
+3. and submit your **merge request**:
+    - with a clear explanation of the changes you've made,
+    - and a note with your thoughts about your tests.
 
-## Guidelines for Contributions
-
-When contributing to the project, please adhere to the following guidelines:
-
-- **Be Respectful**: Treat other contributors and users with respect and courtesy.
-- **Follow Code of Conduct**: Follow the project's code of conduct to maintain a friendly and inclusive environment.
-- **Provide Detailed Explanations**: Clearly explain the purpose of your contribution, whether it's a new feature, bug fix, documentation update, or recommendation.
-- **Follow Coding Standards**: If you're contributing code, adhere to the project's coding standards and conventions.
-- **Test Your Changes**: Ensure that your changes are thoroughly tested before submitting them.
+There are many reasons for submitting a merge request:
+- Fixing bugs,
+- implement new features,
+- improve documentation,
+- and adding tests.
 
 ## Rules for Contributions
 
-To ensure a smooth contribution process, please keep the following rules in mind:
+To ensure a smooth contribution process, please follow the rules below:
 
-- **License Awareness**: Be aware of and check the LICENSE file before contributing to understand the project's licensing terms.
-- **Respect License Terms**: Ensure that your contributions comply with the project's license terms.
-- **Avoid Plagiarism**: Do not plagiarize code or content from other sources. All contributions should be original work or properly attributed.
+- **License Awareness**: Be aware of and check the LICENSE file before contributing to understand the project's licence terms.
+- **Respect the Licence Terms**: Ensure that your contributions comply with the project's license terms.
+- **Avoid Plagiarism**: Do not plagiarise code or content from other sources. All contributions should be original work or properly attributed.
+- **Platform Rules** Also be sure to follow the rules of the provider and the platform.
 
-## Get Started
-
-Ready to contribute? Start by creating an issue or fork the repository to begin making your changes. We appreciate your contributions and look forward to working with you to improve the project.
+## Thank you
+A big thank you, for considering a contribution.
+If anything is unclear, please contact us via a issue with your question.
