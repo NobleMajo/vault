@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/cryption"
-	"coreunit.net/vault/internal/userin"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/lib/cryption"
+	"coreunit.net/vault/lib/userin"
 )
 
 var err error
@@ -16,7 +16,7 @@ var lastUsedPublicKey *rsa.PublicKey
 var lastUsedPassword string
 
 func loadDecryptionData(appConfig *config.AppConfig) {
-	if appConfig.DoRSA {
+	if !appConfig.DisableRSA {
 		lastUsedPrivateKey, err = cryption.LoadRsaPrivateKey(appConfig.PrivateKeyPath)
 
 		if err != nil {
@@ -25,7 +25,7 @@ func loadDecryptionData(appConfig *config.AppConfig) {
 		}
 	}
 
-	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+	if !appConfig.DisableAES256 && len(lastUsedPassword) == 0 {
 		lastUsedPassword, err = userin.PromptPassword()
 
 		if err != nil {
@@ -36,7 +36,7 @@ func loadDecryptionData(appConfig *config.AppConfig) {
 }
 
 func loadEncryptionData(appConfig *config.AppConfig) {
-	if appConfig.DoRSA {
+	if !appConfig.DisableRSA {
 		lastUsedPublicKey, err = cryption.LoadRsaPublicKey(appConfig.PublicKeyPath)
 
 		if err != nil {
@@ -45,7 +45,7 @@ func loadEncryptionData(appConfig *config.AppConfig) {
 		}
 	}
 
-	if appConfig.DoAES256 && len(lastUsedPassword) == 0 {
+	if !appConfig.DisableAES256 && len(lastUsedPassword) == 0 {
 		lastUsedPassword, err = userin.PromptNewPassword()
 
 		if err != nil {

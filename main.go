@@ -5,19 +5,23 @@ import (
 	"os"
 	"strings"
 
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/cmd/subcmd"
-	"coreunit.net/vault/internal/stringfs"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/internal/subcmd"
+	"coreunit.net/vault/lib/stringfs"
+	 "github.com/joho/godotenv"
 )
 
+var DisplayName string = "Unset"
+var ShortName string = "unset"
 var Version string = "?.?.?"
 var Commit string = "???????"
 
 func main() {
-	if len(Commit) > 7 {
-		Commit = Commit[0:7]
+	err := godotenv.Load()
+	if err == nil {
+		fmt.Println("Environment variables from .env loaded")
 	}
-
+	
 	appConfig := config.ParseConfig(Version, Commit)
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)

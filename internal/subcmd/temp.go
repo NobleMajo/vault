@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/stringfs"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/lib/stringfs"
 )
 
 func TempOperation(
@@ -40,9 +40,9 @@ func TempOperation(
 
 	decryptedPlainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
-		appConfig.DoRSA,
+		!appConfig.DisableRSA,
 		lastUsedPrivateKey,
-		appConfig.DoAES256,
+		!appConfig.DisableAES256,
 		[]byte(lastUsedPassword),
 	)
 
@@ -81,9 +81,9 @@ func TempOperation(
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(plainText),
-		appConfig.DoRSA,
+		!appConfig.DisableRSA,
 		lastUsedPublicKey,
-		appConfig.DoAES256,
+		!appConfig.DisableAES256,
 		[]byte(lastUsedPassword),
 	)
 

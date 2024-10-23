@@ -1,8 +1,8 @@
 package subcmd
 
 import (
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/stringfs"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/lib/stringfs"
 )
 
 func InitOperation(
@@ -29,9 +29,9 @@ func InitOperation(
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(initText),
-		appConfig.DoRSA,
+		!appConfig.DisableRSA,
 		lastUsedPublicKey,
-		appConfig.DoAES256,
+		!appConfig.DisableAES256,
 		[]byte(lastUsedPassword),
 	)
 

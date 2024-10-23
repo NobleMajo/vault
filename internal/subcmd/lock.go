@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/stringfs"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/lib/stringfs"
 )
 
 func LockOperation(
@@ -31,9 +31,9 @@ func LockOperation(
 
 	cipherPayload, err := VaultEncrypt(
 		[]byte(plainText),
-		appConfig.DoRSA,
+		!appConfig.DisableRSA,
 		lastUsedPublicKey,
-		appConfig.DoAES256,
+		!appConfig.DisableAES256,
 		[]byte(lastUsedPassword),
 	)
 
