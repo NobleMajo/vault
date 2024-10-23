@@ -26,6 +26,4 @@ vault
 vault.*
 *.vt
 *.bak
-
-# node
-node_modules
+bin

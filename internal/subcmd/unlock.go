@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"coreunit.net/vault/cmd/config"
-	"coreunit.net/vault/internal/stringfs"
+	"coreunit.net/vault/internal/config"
+	"coreunit.net/vault/lib/stringfs"
 )
 
 func UnlockOperation(
@@ -32,9 +32,9 @@ func UnlockOperation(
 
 	plainText, err := VaultDecrypt(
 		[]byte(vaultRaw),
-		appConfig.DoRSA,
+		!appConfig.DisableRSA,
 		lastUsedPrivateKey,
-		appConfig.DoAES256,
+		!appConfig.DisableAES256,
 		[]byte(lastUsedPassword),
 	)
 

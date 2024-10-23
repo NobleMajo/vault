@@ -18,8 +18,8 @@ type AppConfig struct {
 	PlainFileExtension  string
 	BackupFileExtension string
 	CleanPrint          bool
-	DoRSA               bool
-	DoAES256            bool
+	DisableRSA               bool
+	DisableAES256            bool
 	SubCommand          string
 	TempDecodeSeconds   int
 }
@@ -35,8 +35,8 @@ func defaultAppConfig() *AppConfig {
 		VaultFileExtension: "vt",
 		PlainFileExtension: "txt",
 		CleanPrint:         false,
-		DoRSA:              true,
-		DoAES256:           true,
+		DisableRSA:              false,
+		DisableAES256:           false,
 		SubCommand:         "",
 		TempDecodeSeconds:  10,
 	}
@@ -60,8 +60,8 @@ func addCryptFlags(appConfig *AppConfig, cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&appConfig.PublicKeyPath, "public-key", "u", appConfig.PublicKeyPath, "Defines the public key path (VAULT_PUBLIC_KEY_PATH)")
 	cmd.Flags().StringVarP(&appConfig.VaultFileExtension, "vault-ext", "e", appConfig.VaultFileExtension, "Defines the vault file extension (VAULT_EXT)")
 	cmd.Flags().StringVarP(&appConfig.PlainFileExtension, "plain-ext", "p", appConfig.PlainFileExtension, "Defines the plain file extension (VAULT_PLAIN_EXT)")
-	cmd.Flags().BoolVarP(&appConfig.DoRSA, "rsa", "x", appConfig.DoRSA, "Use RSA key encryption (VAULT_RSA)")
-	cmd.Flags().BoolVarP(&appConfig.DoAES256, "aes", "a", appConfig.DoAES256, "Use AES256 password encryption (VAULT_AES)")
+	cmd.Flags().BoolVarP(&appConfig.DisableRSA, "no-rsa", "x", appConfig.DisableRSA, "Use RSA key encryption (VAULT_RSA)")
+	cmd.Flags().BoolVarP(&appConfig.DisableAES256, "no-aes", "a", appConfig.DisableAES256, "Use AES256 password encryption (VAULT_AES)")
 }
 
 func lockCommand(appConfig *AppConfig) *cobra.Command {
@@ -198,12 +198,20 @@ func loadEnvVars(appConfig *AppConfig) {
 		appConfig.PlainFileExtension = value
 	})
 
+	EnvIsBool("VAULT_DISABLE_RSA", func(value bool) {
+		appConfig.DisableRSA = value
+	})
+
 	EnvIsBool("VAULT_RSA", func(value bool) {
-		appConfig.DoRSA = value
+		appConfig.DisableRSA = !value
+	})
+
+	EnvIsBool("VAULT_DISABLE_AES", func(value bool) {
+		appConfig.DisableAES256 = value
 	})
 
 	EnvIsBool("VAULT_AES", func(value bool) {
-		appConfig.DoAES256 = value
+		appConfig.DisableAES256 = !value
 	})
 
 	EnvIsBool("VAULT_VERBOSE", func(value bool) {
