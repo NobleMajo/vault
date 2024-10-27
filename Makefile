@@ -28,6 +28,16 @@ build:
 		-o bin
 	chmod +x bin
 
+## install: installs the build binary globally
+.PHONY: install
+install:
+	@cp ./bin /usr/local/bin/$(SHORT_NAME)
+
+## uninstall: uninstalls the build binary globally
+.PHONY: uninstall
+uninstall:
+	@rm -f /usr/local/bin/$(SHORT_NAME)
+
 ## clean: cleans up the tmp, build and docker cache
 .PHONY: clean
 clean:
@@ -45,7 +55,7 @@ clean:
 	fi
 	@echo "cleanup done!"
 	@echo "WARNING: the .env file still exists!"
-
+	@echo "If installed also execute 'make uninstall' to uninstall the binary."
 
 ## update: updates dependencies
 .PHONY: update
