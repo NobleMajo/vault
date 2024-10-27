@@ -1,6 +1,6 @@
-DISPLAY_NAME := Vault
-SHORT_NAME := vault
-VERSION := 1.3.9
+DISPLAY_NAME := WireGaurdGenerator
+SHORT_NAME := wgg
+VERSION := 1.0.0
 
 COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_ARGS := "-X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.DisplayName=$(DISPLAY_NAME) -X main.ShortName=$(SHORT_NAME)"
@@ -67,6 +67,12 @@ init:
 	@make -s test
 	@echo "building..."
 	@make -s build
+
+## air: starts the go bin in air watch mode
+.PHONY: air
+air:
+	@go install github.com/air-verse/air@v1
+	@air
 
 ## dev: starts a dev docker container
 .PHONY: dev

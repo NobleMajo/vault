@@ -20,10 +20,11 @@
 # Go workspace file
 go.work
 go.work.sum
+bin
+tmp
 
 # Vault 
 vault
 vault.*
 *.vt
 *.bak
-bin

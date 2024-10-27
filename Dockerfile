@@ -17,7 +17,7 @@ ENTRYPOINT air
 ### BASE DEPLOY
 FROM base AS base-deploy
 COPY . .
-RUN make mainbuild
+RUN make build
 
 ### DEPLOY
 FROM ubuntu:24.04 AS deploy

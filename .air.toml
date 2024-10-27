@@ -1,0 +1,4 @@
+[build]
+  cmd = "make -s init"
+  bin = "bin"
+
