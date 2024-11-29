@@ -1,6 +1,6 @@
-DISPLAY_NAME := WireGaurdGenerator
-SHORT_NAME := wgg
-VERSION := 1.0.0
+DISPLAY_NAME := Vault
+SHORT_NAME := vault
+VERSION := 1.4.2
 
 COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_ARGS := "-X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.DisplayName=$(DISPLAY_NAME) -X main.ShortName=$(SHORT_NAME)"
