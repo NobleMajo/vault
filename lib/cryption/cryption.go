@@ -209,7 +209,7 @@ func X509AES256Encrypt(publicKey *rsa.PublicKey, plainPayload []byte) ([]byte, e
 		return nil, err
 	}
 
-	encryptedKey, err := X509EncryptPart(publicKey, randomKey)
+	encryptedKey, err := X509ChunkEncrypt(publicKey, randomKey)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func X509AES256Decrypt(privateKey *rsa.PrivateKey, cipherPayload []byte) ([]byte
 	keySize := privateKey.Size()
 	encryptedKey := cipherPayload[:keySize]
 
-	plainKey, err := X509DecryptPart(privateKey, encryptedKey)
+	plainKey, err := X509ChunkDecrypt(privateKey, encryptedKey)
 	if err != nil {
 		return nil, err
 	}

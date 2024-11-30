@@ -157,7 +157,7 @@ func TestX509Part(t *testing.T) {
 				return
 			}
 
-			cipherPayload, err := X509EncryptPart(publicKey, []byte(test.content))
+			cipherPayload, err := X509ChunkEncrypt(publicKey, []byte(test.content))
 			if test.expectEncryptError {
 				if err == nil {
 					t.Errorf("expected part encryption error, but got none")
@@ -176,7 +176,7 @@ func TestX509Part(t *testing.T) {
 				}
 			}
 
-			plainPayload, err := X509DecryptPart(privateKey, cipherPayload)
+			plainPayload, err := X509ChunkDecrypt(privateKey, cipherPayload)
 			if err != nil {
 				t.Errorf("expected no error, but got:\n> " + err.Error())
 				return
