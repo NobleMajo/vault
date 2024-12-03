@@ -1,7 +1,6 @@
 ### BASE
 FROM golang AS base
 
-EXPOSE 8080
 WORKDIR /app
 
 COPY go.mod* go.sum* ./
