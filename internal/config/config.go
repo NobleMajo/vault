@@ -24,7 +24,12 @@ type AppConfig struct {
 	TempDecodeSeconds   int
 }
 
-func defaultAppConfig() *AppConfig {
+/*************  ✨ Codeium Command ⭐  *************/
+// defaultAppConfig returns the default configuration.
+//
+// This is the configuration that is used when the user does not
+// specify any command line arguments.
+/******  6e6ee01b-e2da-40d4-b9b1-50c71106d60b  *******/func defaultAppConfig() *AppConfig {
 	return &AppConfig{
 		Verbose:            false,
 		ShowVersion:        false,
@@ -228,6 +233,8 @@ func loadEnvVars(appConfig *AppConfig) {
 }
 
 func ParseConfig(
+	displayName string,
+	shortName string,
 	version string,
 	commit string,
 ) *AppConfig {
@@ -268,7 +275,7 @@ func ParseConfig(
 	}
 
 	if appConfig.ShowVersion {
-		fmt.Println("Vault version " + version + ", build " + commit)
+		fmt.Println(displayName + " version " + version + ", build " + commit)
 		os.Exit(0)
 	}
 

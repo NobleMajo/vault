@@ -22,7 +22,7 @@ func main() {
 		fmt.Println("Environment variables from .env loaded")
 	}
 	
-	appConfig := config.ParseConfig(Version, Commit)
+	appConfig := config.ParseConfig(DisplayName, ShortName, Version, Commit)
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)
 	stringfs.ParsePath(&appConfig.PrivateKeyPath)
