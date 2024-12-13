@@ -17,12 +17,12 @@ var Version string = "?.?.?"
 var Commit string = "???????"
 
 func main() {
+	appConfig := config.ParseConfig(DisplayName, ShortName, Version, Commit)
+
 	err := godotenv.Load()
 	if err == nil {
 		fmt.Println("Environment variables from .env loaded")
 	}
-	
-	appConfig := config.ParseConfig(DisplayName, ShortName, Version, Commit)
 
 	stringfs.ParsePath(&appConfig.PublicKeyPath)
 	stringfs.ParsePath(&appConfig.PrivateKeyPath)
@@ -72,8 +72,8 @@ func main() {
 func targetFile(
 	appConfig *config.AppConfig,
 ) string {
-	if len(appConfig.Args) >= 2 {
-		targetFile := appConfig.Args[1]
+	if len(appConfig.Args) >= 1 {
+		targetFile := appConfig.Args[0]
 
 		if strings.HasSuffix(targetFile, "."+appConfig.VaultFileExtension) {
 			targetFile = targetFile[:len(targetFile)-len(appConfig.VaultFileExtension)-1]
