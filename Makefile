@@ -1,43 +1,58 @@
+# prepare env file and tmp dir
+$(shell mkdir -p .tmp/out && touch .env && git init -q)
+
+# import custom makefiles
+-include Makefile.project
+
 # import and use env vars if exist
 -include .env.project
--include .env
+include .env
 export
-
-# prepare env file and tmp dir
-$(shell mkdir -p ./.tmp && touch .env)
 
 # check required project vars
 ifndef PROJECT_DISPLAY_NAME
-$(error PROJECT_DISPLAY_NAME is not set)
+PROJECT_DISPLAY_NAME := Example App
+$(shell echo "\nPROJECT_DISPLAY_NAME=$(PROJECT_DISPLAY_NAME)" >> .env.project)
+$(info Created `PROJECT_DISPLAY_NAME` variable in `.env.project` file!)
 endif
+
+ifndef PROJECT_VERSION
+PROJECT_VERSION := 0.0.1
+$(shell echo "\nPROJECT_VERSION=$(PROJECT_VERSION)" >> .env.project)
+$(info Created `PROJECT_VERSION` variable in `.env.project` file!)
+endif
+
+-include .env.project
 
 # project default vars
 ifdef PROJECT_EXTRA_BUILD_ARGS
 PROJECT_EXTRA_BUILD_ARGS +=
 endif
 
-PROJECT_VERSION ?= 0.0.1
+.DEFAULT_GOAL = info
 PROJECT_SHORT_NAME ?= $(PROJECT_DISPLAY_NAME)
 PROJECT_SHORT_NAME := $(shell echo $(PROJECT_SHORT_NAME) | sed 's/ //g' | sed 's/-/ /g' | tr '[:upper:]' '[:lower:]')
-PROJECT_COMMIT_SHORT ?= $(shell echo "$$(git rev-parse --short HEAD)$$([ -n "$$(git status -s)" ] && echo -n "-modified")")
+PROJECT_COMMIT_SHORT := $(shell git rev-parse --is-inside-work-tree > /dev/null 2>&1 && git rev-parse --verify HEAD > /dev/null 2>&1 && (commit=$$(git rev-parse --short HEAD); status=$$(git status -s); if [ -n "$$status" ]; then echo $$commit-modified; else echo $$commit; fi) || echo "no-commit")
 PROJECT_BUILD_ARGS ?= "$(PROJECT_EXTRA_BUILD_ARGS)-X main.Version=$(PROJECT_VERSION) -X main.Commit=$(PROJECT_COMMIT_SHORT) -X \"main.DisplayName=$(PROJECT_DISPLAY_NAME)\" -X main.ShortName=$(PROJECT_SHORT_NAME)"
+PROJECT_BUILDALL_OS ?= linux darwin windows
+PROJECT_BUILDALL_ARCH ?= arm amd64 386 arm64
 
 # general default vars
 PORT ?= 8080
 HOST ?= 0.0.0.0
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
-GOCACHE ?= $(shell if [ -d "~/.cache/go-build" ]; then realpath "~/.cache/go-build"; else mkdir -p .tmp/.cache/go-build && realpath ".tmp/.cache/go-build"; fi)
-
+GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCACHE)"; else mkdir -p .tmp/.cache/go-build && realpath ".tmp/.cache/go-build"; fi)
 
 ##@ These environment variables control various project configurations, including build, run, and deployment settings.
 ##@ They are loaded from the `.env.projects` file, which is overwritten the `.env` file variables.
 ##@
 ##@ Makefile vars
 ##@
-##@ PROJECT_DISPLAY_NAME: projects full name, required
+##@ PROJECT_DISPLAY_NAME: projects full name,
+##@: default adds 'Example App' to '.env.project'
 ##@ PROJECT_VERSION: semver like project version,
-##@: default is 0.0.1
+##@: default adds '0.0.1' to '.env.project'
 ##@ PROJECT_SHORT_NAME: short spaceless lowercase name,
 ##@: default is $PROJECT_DISPLAY_NAME
 ##@ PROJECT_COMMIT_SHORT: commit short hash,
@@ -46,6 +61,10 @@ GOCACHE ?= $(shell if [ -d "~/.cache/go-build" ]; then realpath "~/.cache/go-bui
 ##@: default is project base vars + $PROJECT_EXTRA_BUILD_ARGS
 ##@ PROJECT_EXTRA_BUILD_ARGS: additional build args,
 ##@: default is empty
+##@ PROJECT_BUILDALL_OS: defines 'buildall' os targets
+##@: default is 'linux darwin windows'
+##@ PROJECT_BUILDALL_ARCH: defines 'buildall' arch targets
+##@: default is 'arm amd64 386 arm64'
 ##@
 ##@ Docker vars
 ##@
@@ -70,7 +89,7 @@ GOCACHE ?= $(shell if [ -d "~/.cache/go-build" ]; then realpath "~/.cache/go-bui
 ##@: default build system arch
 ##@ GOCACHE: container go cache dir,
 ##@: default global go cache if is dir
-##@: else creates ./.tmp/.cache/go-build
+##@: else creates .tmp/.cache/go-build
 
 ##@
 ##@ Misc commands
@@ -105,10 +124,10 @@ info: ##@ prints a project info message
 vars: ##@ prints some vars for debugging
 	@echo "\nProject\n"
 	@env |grep "^PROJECT_" || true
-	@echo "\nDocker\n"
-	@env |grep "^DOCKER_" || true
 	@echo "\nGo\n"
 	@env |grep "^GO" || true
+	@echo "\nDocker\n"
+	@env |grep "^DOCKER_" || true
 	@echo "\nGeneral\n"
 	@echo "ARGS: '$(ARGS)'"
 	@echo "PORT: '$(PORT)'"
@@ -120,7 +139,7 @@ env: ##@ prints env vars for debugging
 
 .PHONY: clean
 clean: ##@ cleans up generated files and docker cache
-	@rm -fr ./.tmp ./out ./bin
+	@rm -fr .tmp bin
 	@if command -v go 2>&1 >/dev/null; then \
 		echo "cleanup go..."; \
 		go clean; \
@@ -152,26 +171,55 @@ build: ##@ uses go to build the app with build args
 
 .PHONY: buildall
 buildall: ##@ cross-compilation for all GOOS/GOARCH combinations
-	@echo "Run test build-system build..."
-	@make -s build || { echo "Test system-build build failed!"; exit 1; }
-	@echo "Prepare out dir..."
-	@mkdir -p out .tmp/out-bak
-	@mv out/* .tmp/out-bak || true
-	@echo "Start build processes..."
-	@go tool dist list | while IFS=/ read -r GOOS GOARCH; do \
+	@echo "Prepare..."
+	@echo "Selected operating systems: $(PROJECT_BUILDALL_OS)"
+	@echo "Selected architectures: $(PROJECT_BUILDALL_ARCH)"
+	@set -- $(PROJECT_BUILDALL_OS) && \
+	OS_ARRAY=$$@ && \
+	set -- $(PROJECT_BUILDALL_ARCH) && \
+	ARCH_ARRAY=$$@ && \
+	set -- $$(go tool dist list | tr '\n' ' ') && \
+	TARGET_ARRAY=$$@ && \
+	FILTERED_TARGETS="" && \
+	for target in $$TARGET_ARRAY; do \
+	  target_os=$$(echo $$target | cut -d '/' -f1); \
+	  target_arch=$$(echo $$target | cut -d '/' -f2); \
+	  if [ -z "$$PROJECT_BUILDALL_OS" ] || echo "$$OS_ARRAY" | grep -qw "$$target_os"; then \
+	    if [ -z "$$PROJECT_BUILDALL_ARCH" ] || echo "$$ARCH_ARRAY" | grep -qw "$$target_arch"; then \
+	      FILTERED_TARGETS="$$FILTERED_TARGETS $$target"; \
+	    fi; \
+	  fi; \
+	done && \
+	FILTERED_TARGETS=$${FILTERED_TARGETS#?} && \
+	if [ -z "$$FILTERED_TARGETS" ]; then \
+	  echo "Error: No matching targets found for the selected OS and architectures"; \
+	  echo "- os: $$PROJECT_BUILDALL_OS"; \
+	  echo "- arch: $$PROJECT_BUILDALL_ARCH"; \
+	  echo "- targets: $$TARGET_ARRAY"; \
+	  exit 1; \
+	fi  && \
+	echo "\nBuild for targets:\n$$FILTERED_TARGETS" && \
+	rm -rf .tmp/out-bak && \
+	mv .tmp/out .tmp/out-bak || true && \
+	echo "\nRun test build-system build..." && \
+	make -s build || { echo "Test system-build build failed!"; exit 1; } && \
+	echo "Start build processes..." && \
+	for target in $$FILTERED_TARGETS; do \
+		GOOS=$$(echo $$target | cut -d'/' -f1) && \
+			GOARCH=$$(echo $$target | cut -d'/' -f2) && \
 		( \
 			go build \
 				-ldflags=$(PROJECT_BUILD_ARGS) \
-				-o out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH && \
-			chmod +x out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH \
-		) || { echo "Build failed for '$$GOOS'/'$$GOARCH'!"; exit 1; } \
+				-o .tmp/out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH && \
+			chmod +x .tmp/out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH \
+		) && echo "- $$GOOS/$$GOARCH build!" || { echo "Build failed for $$GOOS/$$GOARCH!"; exit 1; } & \
 	done && \
 	wait
 	@echo "All build processes finished."
 
 .PHONY: gi
 gi: ##@ installs the build binary globally
-	@sudo cp ./bin /usr/local/bin/$(PROJECT_SHORT_NAME)
+	@sudo cp bin /usr/local/bin/$(PROJECT_SHORT_NAME)
 
 .PHONY: gu
 gu: ##@ uninstalls the build binary globally
@@ -193,10 +241,11 @@ test: ##@ runs all GO tests recursively without coverage
 	go test ./...
 
 .PHONY: cover
-cover: ##@ generates a cover.html test coverage report
+cover: ##@ generates a raw and html test coverage report
 	@echo "Run go tests recursively..."
 	go test -coverprofile .tmp/cover.out ./...
 	go tool cover -html=.tmp/cover.out -o .tmp/cover.html
+	@echo "cover.out and cover.html generated in .tmp!"
 
 .PHONY: init
 init: ##@ infos, deps install, test and build
@@ -205,23 +254,20 @@ init: ##@ infos, deps install, test and build
 	@make -s test
 	@make -s build
 
-.PHONY: air
-air: ##@ air watch mode and also installs air
+.PHONY: dev
+dev: ##@ runs the app in watch mode
+	@echo "Install air if needed and run it..."
 	@go install github.com/air-verse/air@v1
 	@air
 
 ##@
-##@ Docker envs
+##@ Docker targets
 ##@
 
-.PHONY: dev
-dev: ##@ starts a air dev docker container
-	@docker rm -f dev-local-$(PROJECT_SHORT_NAME) > /dev/null 2>&1
-
-	docker compose run --build --rm -it --name dev-local-$(PROJECT_SHORT_NAME) -P local
-
-.PHONY: bash
-bash: ##@ runs a bash shell in the dev container
-	@docker rm -f dev-local-$(PROJECT_SHORT_NAME)-bash > /dev/null 2>&1
-	
-	docker compose run --build --rm -it --name dev-local-$(PROJECT_SHORT_NAME)-bash --entrypoint bash -P local
+.PHONY: docker
+docker: ##@ runs a shell in the container
+	@docker rm -f dev-$(PROJECT_SHORT_NAME) || > /dev/null 2>&1
+	docker compose run  -P --rm -it --build \
+		--name dev-$(PROJECT_SHORT_NAME) \
+		--entrypoint bash \
+		local
