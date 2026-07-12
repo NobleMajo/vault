@@ -8,13 +8,13 @@ import (
 func TestParsePath(t *testing.T) {
 	cwd, err := os.Getwd()
 	if err != nil {
-		t.Errorf("cant get current working dir:\n> " + err.Error())
+		t.Error("cant get current working dir:\n> " + err.Error())
 		return
 	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		t.Errorf("cant get users home dir:\n> " + err.Error())
+		t.Error("cant get users home dir:\n> " + err.Error())
 		return
 	}
 
@@ -57,7 +57,7 @@ func TestParsePathFrom(t *testing.T) {
 	cwd := "/test/cwd"
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		t.Errorf("cant get users home dir:\n> " + err.Error())
+		t.Error("cant get users home dir:\n> " + err.Error())
 		return
 	}
 

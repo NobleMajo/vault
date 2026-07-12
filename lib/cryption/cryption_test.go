@@ -10,7 +10,7 @@ import (
 func TestLoadRsaPublicKey(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
-		t.Errorf("cant get current working dir:\n> " + err.Error())
+		t.Error("cant get current working dir:\n> " + err.Error())
 	}
 
 	tests := []struct {
@@ -47,7 +47,7 @@ func TestLoadRsaPublicKey(t *testing.T) {
 func TestLoadRsaPrivateKey(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
-		t.Errorf("cant get current working dir:\n> " + err.Error())
+		t.Error("cant get current working dir:\n> " + err.Error())
 	}
 
 	tests := []struct {
@@ -84,7 +84,7 @@ func TestLoadRsaPrivateKey(t *testing.T) {
 func TestX509Part(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
-		t.Errorf("cant get current working dir:\n> " + err.Error())
+		t.Error("cant get current working dir:\n> " + err.Error())
 	}
 
 	tests := []struct {
@@ -147,13 +147,13 @@ func TestX509Part(t *testing.T) {
 		t.Run("test-"+strconv.Itoa(id), func(t *testing.T) {
 			publicKey, err := LoadRsaPublicKey(test.publicKeyPath)
 			if err != nil {
-				t.Errorf("expected no error while load public key, but got:\n> " + err.Error())
+				t.Error("expected no error while load public key, but got:\n> " + err.Error())
 				return
 			}
 
 			privateKey, err := LoadRsaPrivateKey(test.privateKeyPath)
 			if err != nil {
-				t.Errorf("expected no error while load private key, but got:\n> " + err.Error())
+				t.Error("expected no error while load private key, but got:\n> " + err.Error())
 				return
 			}
 
@@ -168,7 +168,7 @@ func TestX509Part(t *testing.T) {
 				return
 			} else {
 				if err != nil {
-					t.Errorf("did not expect part encryption error, but got:\n> " + err.Error())
+					t.Error("did not expect part encryption error, but got:\n> " + err.Error())
 					return
 				} else if cipherPayload == nil {
 					t.Errorf("expected cipherPayload, but got nil")
@@ -178,7 +178,7 @@ func TestX509Part(t *testing.T) {
 
 			plainPayload, err := X509ChunkDecrypt(privateKey, cipherPayload)
 			if err != nil {
-				t.Errorf("expected no error, but got:\n> " + err.Error())
+				t.Error("expected no error, but got:\n> " + err.Error())
 				return
 			} else if plainPayload == nil {
 				t.Errorf("expected plainPayload, but got nil")
@@ -198,7 +198,7 @@ func TestX509Part(t *testing.T) {
 func TestX509AES256(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
-		t.Errorf("cant get current working dir:\n> " + err.Error())
+		t.Error("cant get current working dir:\n> " + err.Error())
 	}
 
 	tests := []struct {
@@ -252,19 +252,19 @@ func TestX509AES256(t *testing.T) {
 		t.Run("test-"+strconv.Itoa(id), func(t *testing.T) {
 			publicKey, err := LoadRsaPublicKey(test.publicKeyPath)
 			if err != nil {
-				t.Errorf("expected no error while load public key, but got:\n> " + err.Error())
+				t.Error("expected no error while load public key, but got:\n> " + err.Error())
 				return
 			}
 
 			privateKey, err := LoadRsaPrivateKey(test.privateKeyPath)
 			if err != nil {
-				t.Errorf("expected no error while load private key, but got:\n> " + err.Error())
+				t.Error("expected no error while load private key, but got:\n> " + err.Error())
 				return
 			}
 
 			cipherPayload, err := X509AES256Encrypt(publicKey, []byte(test.content))
 			if err != nil {
-				t.Errorf("did not expect encryption error, but got:\n> " + err.Error())
+				t.Error("did not expect encryption error, but got:\n> " + err.Error())
 				return
 			} else if cipherPayload == nil {
 				t.Errorf("expected cipherPayload, but got nil")
@@ -273,7 +273,7 @@ func TestX509AES256(t *testing.T) {
 
 			plainPayload, err := X509AES256Decrypt(privateKey, cipherPayload)
 			if err != nil {
-				t.Errorf("expected no error, but got:\n> " + err.Error())
+				t.Error("expected no error, but got:\n> " + err.Error())
 				return
 			} else if plainPayload == nil {
 				t.Errorf("expected plainPayload, but got nil")
