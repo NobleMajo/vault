@@ -1,8 +1,8 @@
 package subcmd
 
 import (
-	"coreunit.net/vault/internal/config"
-	"coreunit.net/vault/lib/stringfs"
+	"github.com/NobleMajo/vault/internal/config"
+	"github.com/NobleMajo/vault/lib/stringfs"
 )
 
 func InitOperation(

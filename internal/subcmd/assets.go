@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"coreunit.net/vault/internal/config"
-	"coreunit.net/vault/lib/cryption"
-	"coreunit.net/vault/lib/userin"
+	"github.com/NobleMajo/vault/internal/config"
+	"github.com/NobleMajo/vault/lib/cryption"
+	"github.com/NobleMajo/vault/lib/userin"
 )
 
 var err error

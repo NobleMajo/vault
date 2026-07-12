@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"coreunit.net/vault/internal/config"
-	"coreunit.net/vault/internal/subcmd"
-	"coreunit.net/vault/lib/stringfs"
-	 "github.com/joho/godotenv"
+	"github.com/NobleMajo/vault/internal/config"
+	"github.com/NobleMajo/vault/internal/subcmd"
+	"github.com/NobleMajo/vault/lib/stringfs"
+	"github.com/joho/godotenv"
 )
 
 var DisplayName string = "Unset"
