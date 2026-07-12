@@ -18,18 +18,13 @@ type AppConfig struct {
 	PlainFileExtension  string
 	BackupFileExtension string
 	CleanPrint          bool
-	DisableRSA               bool
-	DisableAES256            bool
+	DisableRSA          bool
+	DisableAES256       bool
 	SubCommand          string
 	TempDecodeSeconds   int
 }
 
-/*************  ✨ Codeium Command ⭐  *************/
-// defaultAppConfig returns the default configuration.
-//
-// This is the configuration that is used when the user does not
-// specify any command line arguments.
-/******  6e6ee01b-e2da-40d4-b9b1-50c71106d60b  *******/func defaultAppConfig() *AppConfig {
+func defaultAppConfig() *AppConfig {
 	return &AppConfig{
 		Verbose:            false,
 		ShowVersion:        false,
@@ -40,8 +35,8 @@ type AppConfig struct {
 		VaultFileExtension: "vt",
 		PlainFileExtension: "txt",
 		CleanPrint:         false,
-		DisableRSA:              false,
-		DisableAES256:           false,
+		DisableRSA:         false,
+		DisableAES256:      false,
 		SubCommand:         "",
 		TempDecodeSeconds:  10,
 	}
