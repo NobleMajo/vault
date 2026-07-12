@@ -26,7 +26,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1
         with:
           binary_name: "vault"
-          goversion: "1.23"
+          goversion: "1.25"
           extra_files: LICENSE README.md CONTRIBUTING.md
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
