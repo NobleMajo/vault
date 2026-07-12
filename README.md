@@ -11,37 +11,28 @@ Vault is a minimalistic CLI tool that encrypts and decrypts plain files into Vau
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
 # Table of Contents
-- [Vault](#vault)
-- [Table of Contents](#table-of-contents)
-  - [Advertising](#advertising)
-  - [Encryption](#encryption)
-- [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Install via go](#install-via-go)
-  - [Install via wget](#install-via-wget)
-- [Build](#build)
-  - [Build requirements](#build-requirements)
-- [Usage](#usage)
-  - [Help](#help)
-    - [init](#init)
-    - [lock](#lock)
-    - [unlock](#unlock)
-    - [temp](#temp)
-    - [print](#print)
-  - [Other filename](#other-filename)
-  - [Build](#build-1)
-- [Development](#development)
-  - [Install go](#install-go)
-- [Contributing](#contributing)
-- [License](#license)
-- [Disclaimer](#disclaimer)
+- [Advertising](#advertising)
+- [Encryption](#encryption)
+- [Requirements](#requirements)
+- [Install via go](#install-via-go)
+- [Install via wget](#install-via-wget)
+- [Build requirements](#build-requirements)
+- [Help](#help)
+  - [init](#init)
+  - [lock](#lock)
+  - [unlock](#unlock)
+  - [temp](#temp)
+  - [print](#print)
+- [Other filename](#other-filename)
+- [Build](#build-1)
+- [Install go](#install-go)
 
 ## Advertising
 *Are you also just a normal software developer or admin with lots of API keys, encryption keys or other secrets and credentials?*
 *Or do you simply have logs or plain text files that you want to send to someone securely?*
 **Then I have exactly what you are looking for today!**
 
-*Hold on tight and take a closer look at this command line interface tool because it might meet your exact needs.*
+*Hold on tight and take a closer look at this cli tool, because it might meet your exact needs.*
 
 ## Encryption
 Vault uses asymmetric RSA encryption and symmetric AES-256 encryption to keep your data as secure as possible.
@@ -63,12 +54,12 @@ go install https://github.com/NobleMajo/vault
 
 ## Install via wget
 ```sh
-BIN_DIR="/usr/local/bin"
-VAULT_VERSION="1.3.3"
+export CUSTOM_BIN_DIR="/usr/local/bin" # <- change if needed
+export VAULT_VERSION="" # <- set latest version here
 
-rm -rf $BIN_DIR/vault
+rm -rf $CUSTOM_BIN_DIR/vault
 wget https://github.com/NobleMajo/vault/releases/download/v$VAULT_VERSION/vault-v$VAULT_VERSION-linux-amd64.tar.gz -O /tmp/vault.tar.gz
-tar -xzvf /tmp/vault.tar.gz -C $BIN_DIR/ vault
+tar -xzvf /tmp/vault.tar.gz -C $CUSTOM_BIN_DIR/ vault
 rm /tmp/vault.tar.gz
 ```
 
