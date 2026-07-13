@@ -10,7 +10,6 @@ import (
 type AppConfig struct {
 	Verbose             bool
 	ShowVersion         bool
-	ShowHelp            bool
 	PrivateKeyPath      string
 	PublicKeyPath       string
 	Args                []string
@@ -28,7 +27,6 @@ func defaultAppConfig() *AppConfig {
 	return &AppConfig{
 		Verbose:            false,
 		ShowVersion:        false,
-		ShowHelp:           false,
 		PrivateKeyPath:     "~/.ssh/id_rsa",
 		PublicKeyPath:      "~/.ssh/id_rsa.pub",
 		Args:               []string{},
@@ -240,7 +238,7 @@ func ParseConfig(
 		Short: "Vault is a file encryption and decryption cli tool written in go.\n" +
 			"For more help, visit https://github.com/NobleMajo/vault",
 		Run: func(cmd *cobra.Command, args []string) {
-			appConfig.ShowHelp = true
+			appConfig.Args = args
 		},
 	}
 
@@ -259,10 +257,20 @@ func ParseConfig(
 
 	loadEnvVars(appConfig)
 
-	err := rootCmd.Execute()
+	// wanted behavior: shows an error when using the "help" subcommand and does not execute
+	rootCmd.SetHelpCommand(&cobra.Command{
+		Use:    "",
+		Hidden: true,
+	})
+
+	cmd, err := rootCmd.ExecuteC()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	if commandHelpRequested(cmd) {
+		os.Exit(0)
 	}
 
 	if appConfig.Verbose {
@@ -274,14 +282,19 @@ func ParseConfig(
 		os.Exit(0)
 	}
 
-	if appConfig.ShowHelp {
+	if appConfig.SubCommand == "" {
 		rootCmd.Help()
 		os.Exit(0)
 	}
 
-	if appConfig.SubCommand == "" {
-		os.Exit(0)
-	}
-
 	return appConfig
+}
+
+func commandHelpRequested(cmd *cobra.Command) bool {
+	for c := cmd; c != nil; c = c.Parent() {
+		if helpFlag := c.Flags().Lookup("help"); helpFlag != nil && helpFlag.Changed {
+			return true
+		}
+	}
+	return false
 }
