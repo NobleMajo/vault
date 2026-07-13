@@ -14,6 +14,7 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
 - [Advertising](#advertising)
 - [Encryption](#encryption)
 - [Requirements](#requirements)
+- [Getting Started](#getting-started-1)
 - [Install via go](#install-via-go)
 - [Install via wget](#install-via-wget)
 - [Build requirements](#build-requirements)
@@ -43,7 +44,14 @@ Currently no elliptic curve support! Just rsa.
 # Getting Started
 
 ## Requirements
-None windows system with `go` or `wget & tar` installed.
+Linux- or macos-like systems with `go` or `wget & tar` installed.
+
+## Getting Started
+
+Start the latest repo version directly without leaving stuff in the current working dir: 
+```sh
+go run github.com/NobleMajo/vault@latest
+```
 
 ## Install via go
 ###### *For this section go is required, check out the [install go guide](#install-go).*
