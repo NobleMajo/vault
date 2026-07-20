@@ -57,7 +57,7 @@ go run github.com/NobleMajo/vault@latest
 ###### *For this section go is required, check out the [install go guide](#install-go).*
 
 ```sh
-go install https://github.com/NobleMajo/vault
+go install github.com/NobleMajo/vault@latest
 ```
 
 ## Install via wget
@@ -144,7 +144,7 @@ vault print
 ```
 
 ## Other filename
-To choose a other file then the `vault.txt` use the second argument without extensions:
+To choose another file than the `vault.txt` use the second argument without extensions:
 (`test` for `test.txt` and `test.vt`)
  ```sh
 vault lock <filename>
@@ -154,7 +154,7 @@ vault init <filename>
 vault print <filename>
 ```
 
-## Build
+## Build Instructions
 ###### *For this section go is required, check out the [install go guide](#install-go).*
 
 Clone the repo:
@@ -172,7 +172,7 @@ make build
 # Development
 ###### *For this section go is required, check out the [install go guide](#install-go).*
 
-This part is work in process, i want use 'AIR' as autoreload tool:
+This part is work in progress, I want to use 'AIR' as auto-reload tool:
 ```sh
 make dev #WIP
 ```
