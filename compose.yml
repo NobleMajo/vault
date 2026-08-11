@@ -1,0 +1,36 @@
+services:
+  local:
+    build:
+      dockerfile: "Dockerfile"
+      target: "local"
+    ports:
+      - "0.0.0.0:${PORT:-8080}:8080"
+    env_file: ".env"
+    environment:
+      GOCACHE: "/cache/go-build"
+      GOMODCACHE: "/cache/pkg/mod"
+      INIT_CMD: "air"
+    volumes:
+      - ".:/app"
+      - "./.tmp/cache:/cache"
+    user: "root"
+    working_dir: "/app"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        mkdir -p /app/data /cache/go-build /cache/pkg/mod
+        chown -R 1000:1000 /app/data /cache
+        chmod -R 777 /app/data /cache
+        exec setpriv --reuid=1000 --regid=1000 --clear-groups -- $$INIT_CMD
+
+  deploy:
+    build:
+      dockerfile: "Dockerfile"
+      target: "deploy"
+    ports:
+      - "0.0.0.0:${PORT:-8080}:8080"
+    env_file: ".env"
+    volumes:
+      - "./data:/app/data"
+    user: "1000:1000"

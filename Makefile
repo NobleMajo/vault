@@ -31,7 +31,7 @@ endif
 
 .DEFAULT_GOAL = info
 PROJECT_SHORT_NAME ?= $(PROJECT_DISPLAY_NAME)
-PROJECT_SHORT_NAME := $(shell echo $(PROJECT_SHORT_NAME) | sed 's/ //g' | sed 's/-/ /g' | tr '[:upper:]' '[:lower:]')
+PROJECT_SHORT_NAME := $(shell echo $(PROJECT_SHORT_NAME) | sed 's/ //g' | tr '[:upper:]' '[:lower:]')
 PROJECT_COMMIT_SHORT := $(shell git rev-parse --is-inside-work-tree > /dev/null 2>&1 && git rev-parse --verify HEAD > /dev/null 2>&1 && (commit=$$(git rev-parse --short HEAD); status=$$(git status -s); if [ -n "$$status" ]; then echo $$commit-modified; else echo $$commit; fi) || echo "no-commit")
 PROJECT_BUILD_ARGS ?= "$(PROJECT_EXTRA_BUILD_ARGS)-X main.Version=$(PROJECT_VERSION) -X main.Commit=$(PROJECT_COMMIT_SHORT) -X \"main.DisplayName=$(PROJECT_DISPLAY_NAME)\" -X main.ShortName=$(PROJECT_SHORT_NAME)"
 PROJECT_BUILDALL_OS ?= linux darwin windows
@@ -45,11 +45,11 @@ GOARCH ?= $(shell go env GOARCH)
 GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCACHE)"; else mkdir -p .tmp/.cache/go-build && realpath ".tmp/.cache/go-build"; fi)
 
 ##@ These environment variables control various project configurations, including build, run, and deployment settings.
-##@ They are loaded from the `.env.projects` file, which is overwritten the `.env` file variables.
+##@ They are loaded from the `.env.project` file and overwrite the `.env` file variables.
 ##@
 ##@ Makefile vars
 ##@
-##@ PROJECT_DISPLAY_NAME: projects full name,
+##@ PROJECT_DISPLAY_NAME: project's full name,
 ##@: default adds 'Example App' to '.env.project'
 ##@ PROJECT_VERSION: semver like project version,
 ##@: default adds '0.0.1' to '.env.project'
@@ -87,7 +87,7 @@ GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCA
 ##@: default build system os
 ##@ GOARCH: target build architecture,
 ##@: default build system arch
-##@ GOCACHE: container go cache dir,
+##@ GOCACHE: host go cache path for local (non-compose) builds,
 ##@: default global go cache if is dir
 ##@: else creates .tmp/.cache/go-build
 
@@ -165,65 +165,10 @@ run: ##@ runs the main.go file using go run
 build: ##@ uses go to build the app with build args
 	@touch .env
 	go build \
+		-buildvcs=false \
 		-ldflags=$(PROJECT_BUILD_ARGS) \
 		-o bin
 	@chmod +x bin
-
-.PHONY: buildall
-buildall: ##@ cross-compilation for all GOOS/GOARCH combinations
-	@echo "Prepare..."
-	@echo "Selected operating systems: $(PROJECT_BUILDALL_OS)"
-	@echo "Selected architectures: $(PROJECT_BUILDALL_ARCH)"
-	@set -- $(PROJECT_BUILDALL_OS) && \
-	OS_ARRAY=$$@ && \
-	set -- $(PROJECT_BUILDALL_ARCH) && \
-	ARCH_ARRAY=$$@ && \
-	set -- $$(go tool dist list | tr '\n' ' ') && \
-	TARGET_ARRAY=$$@ && \
-	FILTERED_TARGETS="" && \
-	for target in $$TARGET_ARRAY; do \
-	  target_os=$$(echo $$target | cut -d '/' -f1); \
-	  target_arch=$$(echo $$target | cut -d '/' -f2); \
-	  if [ -z "$$PROJECT_BUILDALL_OS" ] || echo "$$OS_ARRAY" | grep -qw "$$target_os"; then \
-	    if [ -z "$$PROJECT_BUILDALL_ARCH" ] || echo "$$ARCH_ARRAY" | grep -qw "$$target_arch"; then \
-	      FILTERED_TARGETS="$$FILTERED_TARGETS $$target"; \
-	    fi; \
-	  fi; \
-	done && \
-	FILTERED_TARGETS=$${FILTERED_TARGETS#?} && \
-	if [ -z "$$FILTERED_TARGETS" ]; then \
-	  echo "Error: No matching targets found for the selected OS and architectures"; \
-	  echo "- os: $$PROJECT_BUILDALL_OS"; \
-	  echo "- arch: $$PROJECT_BUILDALL_ARCH"; \
-	  echo "- targets: $$TARGET_ARRAY"; \
-	  exit 1; \
-	fi  && \
-	echo "\nBuild for targets:\n$$FILTERED_TARGETS" && \
-	rm -rf .tmp/out-bak && \
-	mv .tmp/out .tmp/out-bak || true && \
-	echo "\nRun test build-system build..." && \
-	make -s build || { echo "Test system-build build failed!"; exit 1; } && \
-	echo "Start build processes..." && \
-	for target in $$FILTERED_TARGETS; do \
-		GOOS=$$(echo $$target | cut -d'/' -f1) && \
-			GOARCH=$$(echo $$target | cut -d'/' -f2) && \
-		( \
-			go build \
-				-ldflags=$(PROJECT_BUILD_ARGS) \
-				-o .tmp/out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH && \
-			chmod +x .tmp/out/$(PROJECT_SHORT_NAME)-$$GOOS-$$GOARCH \
-		) && echo "- $$GOOS/$$GOARCH build!" || { echo "Build failed for $$GOOS/$$GOARCH!"; exit 1; } & \
-	done && \
-	wait
-	@echo "All build processes finished."
-
-.PHONY: gi
-gi: ##@ installs the build binary globally
-	@sudo cp bin /usr/local/bin/$(PROJECT_SHORT_NAME)
-
-.PHONY: gu
-gu: ##@ uninstalls the build binary globally
-	@sudo rm -f /usr/local/bin/$(PROJECT_SHORT_NAME)
 
 .PHONY: up
 up: ##@ updates dependencies recursively using go get
@@ -266,8 +211,22 @@ dev: ##@ runs the app in watch mode
 
 .PHONY: docker
 docker: ##@ runs a shell in the container
-	@docker rm -f dev-$(PROJECT_SHORT_NAME) || > /dev/null 2>&1
-	docker compose run  -P --rm -it --build \
+	@docker rm -f dev-$(PROJECT_SHORT_NAME) > /dev/null 2>&1 || true
+	docker compose run -P --rm -it --build --service-ports \
 		--name dev-$(PROJECT_SHORT_NAME) \
-		--entrypoint bash \
+		-e INIT_CMD="bash" \
 		local
+
+.PHONY: docker/dev
+docker/dev: ##@ runs app in docker via air
+	@docker rm -f dev-$(PROJECT_SHORT_NAME) > /dev/null 2>&1 || true
+	docker compose run --rm -it --build --service-ports \
+		--name dev-$(PROJECT_SHORT_NAME) \
+		local
+
+.PHONY: docker/deploy
+docker/deploy: ##@ runs app in docker in a fresh environment
+	@docker rm -f dev-$(PROJECT_SHORT_NAME) > /dev/null 2>&1 || true
+	docker compose run --rm -it --build --service-ports \
+		--name dev-$(PROJECT_SHORT_NAME) \
+		deploy
