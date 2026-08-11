@@ -3,6 +3,12 @@ name: Go binary release
 on:
   release:
     types: [created, edited]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to upload binaries to
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -31,4 +37,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          ldflags: "-X main.Version=${{ github.ref_name }} -X main.Commit=${{ github.sha }}"
+          release_tag: ${{ github.event.inputs.release_tag || github.ref_name }}
+          ldflags: "-X main.Version=${{ github.event.inputs.release_tag || github.ref_name }} -X main.Commit=${{ github.sha }}"

@@ -1,0 +1,49 @@
+name: Create release on version bump
+
+on:
+  push:
+    branches: [main]
+    paths: ['.env.project']
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  release:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release if version bumped
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          set -a
+          source .env.project
+          set +a
+
+          TAG="v${PROJECT_VERSION}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists"
+            exit 0
+          fi
+
+          PREV_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
+          REPO="${{ github.repository }}"
+
+          if [ -n "$PREV_TAG" ]; then
+            NOTES="**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${TAG}"
+          else
+            NOTES="**Full Changelog**: https://github.com/${REPO}/commits/${TAG}"
+          fi
+
+          gh release create "$TAG" --title "$TAG" --notes "$NOTES" --target "${{ github.sha }}"
+          echo "Created release $TAG"
+
+          # GITHUB_TOKEN release events do not trigger other workflows; dispatch explicitly.
+          # Do not pass a commit SHA as --ref; workflow_dispatch needs a branch/tag name.
+          gh workflow run go-bin-release.yml -f release_tag="$TAG"
