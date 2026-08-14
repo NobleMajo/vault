@@ -15,25 +15,7 @@ Vault is a minimalistic CLI tool that encrypts and decrypts plain files into Vau
 
 The idea behind this tool is to have a CLI utility that can quickly and easily encrypt individual files, allowing users to securely store API tokens, secrets, credentials, or any private data on their own disk.
 
-# Table of Contents
-
-- [Advertising](#advertising)
-- [Encryption](#encryption)
-- [Help](#help)
-  - [init](#init)
-  - [lock](#lock)
-  - [unlock](#unlock)
-  - [temp](#temp)
-  - [print](#print)
-- [Other filename](#other-filename)
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-- [Quick help](#quick-help)
-- [Install via go](#install-via-go)
-- [Install via wget](#install-via-wget)
-- [Build requirements](#build-requirements)
-- [Build Instructions](#build-instructions)
-- [Install go](#install-go)
+<details><summary><strong>Advertising</strong></summary>
 
 ## Advertising
 
@@ -43,12 +25,20 @@ _Or do you simply have logs or plain text files that you want to send to someone
 
 _Hold on tight and take a closer look at this cli tool, because it might meet your exact needs._
 
+</details>
+
+<details><summary><strong>Encryption</strong></summary>
+
 ## Encryption
 
 Vault uses asymmetric RSA encryption and symmetric AES-256 encryption to keep your data as secure as possible.
 To do this, vault uses private and public key on disk (default: `~/.ssh/id_rsa.pub`) and also asks you for a password.
 
 Currently no elliptic curve support! Just rsa.
+
+</details>
+
+<details><summary><strong>Usage</strong></summary>
 
 # Usage
 
@@ -142,6 +132,10 @@ vault init <filename>
 vault print <filename>
 ```
 
+</details>
+
+<details><summary><strong>User Guide</strong></summary>
+
 # User Guide
 
 ## Requirements
@@ -207,6 +201,10 @@ make build
 ./vault
 ```
 
+</details>
+
+<details><summary><strong>Development</strong></summary>
+
 # Development
 
 ###### _For this section go is required, check out the [install go guide](#install-go)._
@@ -228,6 +226,8 @@ git clone git@github.com:udhos/update-golang.git golang-updater
 cd golang-updater
 sudo ./update-golang.sh
 ```
+
+</details>
 
 <div align="center">
 
