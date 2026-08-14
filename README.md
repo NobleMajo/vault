@@ -229,16 +229,23 @@ cd golang-updater
 sudo ./update-golang.sh
 ```
 
-# Contributing
+<div align="center">
+
+# 🤝 Contributing
 
 Contributions to this project are welcome!  
-Interested users can refer to the guidelines provided in the [CONTRIBUTING.md](CONTRIBUTING.md) file to contribute to the project and help improve its functionality and features.
+Follow the [CONTRIBUTING.md](CONTRIBUTING.md) for more infos.
 
-# License
+# ⚠️ Disclaimer
 
-This project is licensed under the [MIT license](LICENSE), providing users with flexibility and freedom to use and modify the software according to their needs.
+This project is provided without warranties.
 
-# Disclaimer
+# 📜 License
 
-This project is provided without warranties.  
-Users are advised to review the accompanying license for more information on the terms of use and limitations of liability.
+Licensed under the [MIT license](LICENSE).
+
+<a href="https://discord.coreunit.net">
+    <img alt="CoreUnit.NET Discord Banner" src="https://discord.com/api/guilds/422136748294930443/widget.png?style=banner2">
+</a>
+
+</div>
