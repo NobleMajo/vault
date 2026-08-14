@@ -1,4 +1,6 @@
-# Vault
+<div align="center">
+
+# 🛅 vault
 
 ![CI/CD](https://github.com/NobleMajo/vault/actions/workflows/go-bin-release.yml/badge.svg)
 ![CI/CD](https://github.com/NobleMajo/vault/actions/workflows/go-test-build.yml/badge.svg)  
@@ -6,6 +8,8 @@
 ![](https://img.shields.io/badge/dynamic/json?color=green&label=watchers&query=watchers&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=yellow&label=stars&query=stargazers_count&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
+
+</div>
 
 Vault is a minimalistic CLI tool that encrypts and decrypts plain files into Vault files. (`.vt`).
 
