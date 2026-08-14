@@ -2,14 +2,16 @@
 
 # 🛅 vault
 
+![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![CI/CD](https://github.com/NobleMajo/vault/actions/workflows/go-bin-release.yml/badge.svg)
 ![CI/CD](https://github.com/NobleMajo/vault/actions/workflows/go-test-build.yml/badge.svg)  
-![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![](https://img.shields.io/badge/dynamic/json?color=green&label=watchers&query=watchers&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=yellow&label=stars&query=stargazers_count&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
 ![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2FNobleMajo%2Fvault)
 
 </div>
+
+## About
 
 Vault is a minimalistic CLI tool that encrypts and decrypts plain files into Vault files. (`.vt`).
 
@@ -17,7 +19,7 @@ The idea behind this tool is to have a CLI utility that can quickly and easily e
 
 <details><summary><strong>Advertising</strong></summary>
 
-## Advertising
+### Advertising
 
 _Are you also just a normal software developer or admin with lots of API keys, encryption keys or other secrets and credentials?_
 _Or do you simply have logs or plain text files that you want to send to someone securely?_
@@ -29,7 +31,7 @@ _Hold on tight and take a closer look at this cli tool, because it might meet yo
 
 <details><summary><strong>Encryption</strong></summary>
 
-## Encryption
+### Encryption
 
 Vault uses asymmetric RSA encryption and symmetric AES-256 encryption to keep your data as secure as possible.
 To do this, vault uses private and public key on disk (default: `~/.ssh/id_rsa.pub`) and also asks you for a password.
