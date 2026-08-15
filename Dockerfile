@@ -23,7 +23,10 @@ RUN make build
 ### DEPLOY
 FROM ubuntu:latest AS deploy
 
-RUN mkdir -p /app/data \
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends ca-certificates \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& mkdir -p /app/data \
 	&& chown -R 1000:1000 /app \
 	&& chmod -R 755 /app
 
