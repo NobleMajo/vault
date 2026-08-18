@@ -1,3 +1,5 @@
+tmp_dir = "tmp"
+
 [build]
   cmd = "make -s init"
   bin = "bin"

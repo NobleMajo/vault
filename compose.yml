@@ -12,7 +12,7 @@ services:
       INIT_CMD: "air"
     volumes:
       - ".:/app"
-      - "./.tmp/cache:/cache"
+      - "./tmp/cache:/cache"
     user: "root"
     working_dir: "/app"
     entrypoint: ["/bin/bash", "-c"]

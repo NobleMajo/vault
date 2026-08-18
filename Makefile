@@ -1,5 +1,5 @@
 # prepare env file and tmp dir
-$(shell mkdir -p .tmp/out && touch .env && git init -q)
+$(shell mkdir -p tmp/out && touch .env && git init -q)
 
 # import custom makefiles
 -include Makefile.project
@@ -42,7 +42,7 @@ PORT ?= 8080
 HOST ?= 0.0.0.0
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
-GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCACHE)"; else mkdir -p .tmp/.cache/go-build && realpath ".tmp/.cache/go-build"; fi)
+GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCACHE)"; else mkdir -p tmp/.cache/go-build && realpath "tmp/.cache/go-build"; fi)
 
 ##@ These environment variables control various project configurations, including build, run, and deployment settings.
 ##@ They are loaded from the `.env.project` file and overwrite the `.env` file variables.
@@ -89,7 +89,7 @@ GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCA
 ##@: default build system arch
 ##@ GOCACHE: host go cache path for local (non-compose) builds,
 ##@: default global go cache if is dir
-##@: else creates .tmp/.cache/go-build
+##@: else creates tmp/.cache/go-build
 
 ##@
 ##@ Misc commands
@@ -139,7 +139,7 @@ env: ##@ prints env vars for debugging
 
 .PHONY: clean
 clean: ##@ cleans up generated files and docker cache
-	@rm -fr .tmp bin
+	@rm -fr tmp bin
 	@if command -v go 2>&1 >/dev/null; then \
 		echo "cleanup go..."; \
 		go clean; \
@@ -188,9 +188,9 @@ test: ##@ runs all GO tests recursively without coverage
 .PHONY: cover
 cover: ##@ generates a raw and html test coverage report
 	@echo "Run go tests recursively..."
-	go test -coverprofile .tmp/cover.out ./...
-	go tool cover -html=.tmp/cover.out -o .tmp/cover.html
-	@echo "cover.out and cover.html generated in .tmp!"
+	go test -coverprofile tmp/cover.out ./...
+	go tool cover -html=tmp/cover.out -o tmp/cover.html
+	@echo "cover.out and cover.html generated in tmp!"
 
 .PHONY: init
 init: ##@ infos, deps install, test and build
