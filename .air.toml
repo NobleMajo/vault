@@ -3,3 +3,4 @@ tmp_dir = "tmp"
 [build]
   cmd = "make -s init"
   bin = "bin"
+  exclude_dir = ["tmp", "data", ".store", "context", "bin", "vendor", ".git"]

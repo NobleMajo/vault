@@ -44,6 +44,10 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 GOCACHE ?= $(shell if [ -d "$$(go env GOCACHE)" ]; then realpath "$$(go env GOCACHE)"; else mkdir -p tmp/.cache/go-build && realpath "tmp/.cache/go-build"; fi)
 
+# Host identity for compose bind-mount ownership (see compose.yml RUN_UID/RUN_GID)
+export UID ?= $(shell id -u)
+export GID ?= $(shell id -g)
+
 ##@ These environment variables control various project configurations, including build, run, and deployment settings.
 ##@ They are loaded from the `.env.project` file and overwrite the `.env` file variables.
 ##@
@@ -147,8 +151,8 @@ clean: ##@ cleans up generated files and docker cache
 	fi
 	@if command -v docker 2>&1 >/dev/null; then \
 		echo "cleanup docker containers and images..."; \
-		docker rm -f dev-local-$(PROJECT_SHORT_NAME)-bash > /dev/null 2>&1 \
-		docker rm -f dev-local-$(PROJECT_SHORT_NAME) > /dev/null 2>&1 \
+		docker compose down --remove-orphans > /dev/null 2>&1 || true; \
+		docker rm -f dev-$(PROJECT_SHORT_NAME) > /dev/null 2>&1 || true; \
 		docker image prune -f; \
 	fi
 	@echo "cleanup done!"

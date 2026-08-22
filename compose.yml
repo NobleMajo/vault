@@ -10,6 +10,9 @@ services:
       GOCACHE: "/cache/go-build"
       GOMODCACHE: "/cache/pkg/mod"
       INIT_CMD: "air"
+      # Host uid/gid from the environment (Makefile exports these for `make docker*`)
+      RUN_UID: ${UID:-1000}
+      RUN_GID: ${GID:-1000}
     volumes:
       - ".:/app"
       - "./tmp/cache:/cache"
@@ -20,9 +23,8 @@ services:
       - |
         set -euo pipefail
         mkdir -p /app/data /cache/go-build /cache/pkg/mod
-        chown -R 1000:1000 /app/data /cache
-        chmod -R 777 /app/data /cache
-        exec setpriv --reuid=1000 --regid=1000 --clear-groups -- $$INIT_CMD
+        chown -R "$$RUN_UID:$$RUN_GID" /app/data /cache
+        exec setpriv --reuid="$$RUN_UID" --regid="$$RUN_GID" --clear-groups -- $$INIT_CMD
 
   deploy:
     build:
@@ -33,4 +35,4 @@ services:
     env_file: ".env"
     volumes:
       - "./data:/app/data"
-    user: "1000:1000"
+    user: "${UID:-1000}:${GID:-1000}"

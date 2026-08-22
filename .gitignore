@@ -23,8 +23,11 @@ go.work.sum
 bin
 tmp
 .env
+data/
+.store/
+context/
 
-# Vault 
+# Vault
 vault
 vault.*
 *.vt
