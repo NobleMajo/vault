@@ -28,7 +28,7 @@ jobs:
           - goarch: "arm64"
             goos: "windows"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: wangyoucao577/go-release-action@v1
         with:
           binary_name: ${{ github.event.repository.name }}
